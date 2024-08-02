@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/theme/theme_provider.dart';
 import 'api_service.dart'; // Make sure this file contains the ApiService class
 import 'scouting_page.dart';
 import 'pit_scouting_page.dart';
@@ -20,25 +21,30 @@ class MyApp extends StatelessWidget {
         Provider<ApiService>(
           create: (_) => ApiService('https://highlanderscouting.azurewebsites.net'),
         ),
+        ChangeNotifierProvider(create: (_) => ThemeDataProvider()),
       ],
-      child: MaterialApp(
-        title: 'Polar Forecast',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.black,
-            foregroundColor: Colors.white,
-            elevation: 4,
+      child: MainApp(),
+    );
+  }
+}
+
+class MainApp extends StatelessWidget {
+   
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<ThemeDataProvider>(
+      builder: (context, themeNotifier, child) {
+        return MaterialApp(
+          home: Builder(
+            builder: (context) => MyHomePage(),
           ),
-          bottomNavigationBarTheme: BottomNavigationBarThemeData(
-            backgroundColor: Colors.black,
-            selectedItemColor: Colors.blueAccent,
-            unselectedItemColor: Colors.grey,
-          ),
-        ),
-        home: MyHomePage(),
-      ),
+          theme: themeNotifier.themeData,
+          routes: {
+            '/home': (context) => MyHomePage(),
+            // '/autos': (context) => AutosPage([], ""),
+          },
+        );
+      }
     );
   }
 }
@@ -105,4 +111,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-//hi
