@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scouting_app/theme/theme.dart';
+import 'theme.dart';
 
 class ThemeDataProvider extends ChangeNotifier {
   ThemeData _lightTheme = lightTheme(),

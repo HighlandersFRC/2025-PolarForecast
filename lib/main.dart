@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/theme/theme_provider.dart';
+import 'theme/theme_provider.dart';
 import 'api_service.dart'; // Make sure this file contains the ApiService class
 import 'scouting_page.dart';
 import 'pit_scouting_page.dart';
