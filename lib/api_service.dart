@@ -26,6 +26,23 @@ class Tournament {
   }
 }
 
+class TeamStats {
+  final Map<String, dynamic> data;
+  final String key;
+  final int number;
+  TeamStats({required this.data, required this.key, required this.number});
+
+  factory TeamStats.fromJson(Map<String, dynamic> json) {
+    return TeamStats(
+      data: json,
+      key: json['key'],
+      number: int.parse(json['team_number']),
+    );
+  }
+
+  
+}
+
 class ApiService {
   final String APIURL;
   final Duration cacheDuration;
@@ -55,7 +72,7 @@ class ApiService {
     Function() getFromAPI = () async {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final data = json.decode(response.body)["data"] as List;
+        final data = json.decode(response.body);
         _setInCache(cacheKey, data);
         return data;
       } else {
@@ -68,25 +85,33 @@ class ApiService {
   Future<List<Tournament>> fetchTournaments() async {
     final cacheKey = 'tournaments';
     final url = '$APIURL/search_keys';
-    final tournaments = [for(var x in  (_fetchFromAPI(url, cacheKey) as Iterable)) Tournament.fromJson(x)];
+    final tournaments = [
+      for (var x in ((await _fetchFromAPI(url, cacheKey) as Map<String, dynamic>)['data']))
+        Tournament.fromJson(x)
+    ];
     return tournaments;
   }
 
-  Future<Map<String, dynamic>> fetchStatDescription(int year, String event) async {
+  Future<Map<String, dynamic>> fetchStatDescription(
+      int year, String event) async {
     final cacheKey = '${year}_${event}_stat_description';
     final url = '$APIURL/$year/$event/stat_description';
-    return _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
+    return await _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
   }
 
-  Future<Map<String, dynamic>> fetchTeamStats(int year, String event, String team) async {
+  Future<Map<String, dynamic>> fetchTeamStats(
+      int year, String event, String team) async {
     final cacheKey = '${year}_${event}_${team}_team_stats';
     final url = '$APIURL/$year/$event/$team/stats';
-    return _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
+    return await _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
   }
 
-  Future<Map<String, dynamic>> fetchEventRankings(int year, String event) async {
+  Future<List<TeamStats>> fetchEventRankings(int year, String event) async {
     final cacheKey = '${year}_${event}_rankings';
     final url = '${APIURL}/${year}/${event}/stats';
-    return _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
+    var data = (await _fetchFromAPI(url, cacheKey))['data'];
+    data = [...data];
+    data.removeAt(0);
+    return [for (var x in data) TeamStats.fromJson(x)];
   }
 }

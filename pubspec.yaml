@@ -20,11 +20,10 @@ dependencies:
   image: ^3.0.1
   pretty_qr_code: ^3.3.0
   flutter_cache_manager: ^3.4.0
-  flutter_data_table: ^1.1.2
-  syncfusion_flutter_datagrid: ^26.2.7
-  data_tables: ^1.4.0
   flutter_bloc: ^8.1.6
   dio: ^5.5.0+1
+  syncfusion_flutter_datagrid: ^26.2.9
+  syncfusion_flutter_charts: ^26.2.14
 
 
 dev_dependencies:
