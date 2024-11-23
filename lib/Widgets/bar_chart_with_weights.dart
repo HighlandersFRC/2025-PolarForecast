@@ -123,7 +123,11 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
         SfCartesianChart(
           tooltipBehavior:
               TooltipBehavior(enable: true, shared: true, opacity: 0.8),
-          primaryXAxis: CategoryAxis(),
+          primaryXAxis: CategoryAxis(
+            labelRotation: 90,
+            
+            labelIntersectAction: AxisLabelIntersectAction.multipleRows,
+          ),
           legend: Legend(),
           series: fields.where((field) => field.enabled).map((field) {
             final index = fields.indexOf(field);

@@ -366,7 +366,7 @@ class _ChartsTabState extends State<_ChartsTab> {
               child: BarChartWithWeights(
                   title: "OPR By Game Period",
                   data: rankings,
-                  number: 32,
+                  number: 24,
                   startingFields: [
                     Field(
                         name: "Auto",
@@ -389,7 +389,7 @@ class _ChartsTabState extends State<_ChartsTab> {
               child: BarChartWithWeights(
                   title: "Notes By Game Period",
                   data: rankings,
-                  number: 32,
+                  number: 24,
                   startingFields: [
                     Field(
                         name: "Teleop Notes",
@@ -412,7 +412,7 @@ class _ChartsTabState extends State<_ChartsTab> {
               child: BarChartWithWeights(
                   title: "Notes By Placement",
                   data: rankings,
-                  number: 32,
+                  number: 24,
                   startingFields: [
                     Field(
                         name: "Speaker",
@@ -436,7 +436,7 @@ class _ChartsTabState extends State<_ChartsTab> {
               child: BarChartWithWeights(
                   title: "Full OPR Breakdown",
                   data: rankings,
-                  number: 32,
+                  number: 24,
                   startingFields: [
                     new Field(
                         name: "AS",
