@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scouting_app/api_service.dart';
@@ -124,8 +126,7 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
           tooltipBehavior:
               TooltipBehavior(enable: true, shared: true, opacity: 0.8),
           primaryXAxis: CategoryAxis(
-            labelRotation: 90,
-            
+            labelRotation: (Platform.isAndroid || Platform.isIOS)? 90:0,
             labelIntersectAction: AxisLabelIntersectAction.multipleRows,
           ),
           legend: Legend(),

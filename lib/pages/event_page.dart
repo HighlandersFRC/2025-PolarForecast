@@ -4,11 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/bar_chart_with_weights.dart';
+import 'package:scouting_app/Widgets/team_link.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-
-import '../models/models.dart';
 
 class EventPage extends StatefulWidget {
   final Tournament tournament;
@@ -127,7 +126,7 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   void updateGrid() {
     dataColumns = [
-      GridColumn(label: Text('#'), columnName: 'team_number'),
+      GridColumn(label: Text('#'), columnName: 'team_number', filterPopupMenuOptions: FilterPopupMenuOptions()),
       GridColumn(label: Text('OPR'), columnName: 'OPR'),
     ];
     heatMapFromKey = {
@@ -177,7 +176,7 @@ class _RankingsTabState extends State<_RankingsTab> {
               value: rank.data[column.columnName],
             ));
         } catch (e) {
-          print (e);
+          print(e);
           cells.add(DataGridCell(columnName: column.columnName, value: ''));
         }
       }
@@ -205,11 +204,6 @@ class _RankingsTabState extends State<_RankingsTab> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
       print('Error fetching data: $e');
     }
   }
@@ -231,10 +225,13 @@ class _RankingsTabState extends State<_RankingsTab> {
                   scaleEnabled: false,
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
+                    
+                    allowFiltering: true,
+                    allowSorting: true,
                     columns: dataColumns,
                     frozenColumnsCount: 2,
                     source: _TeamDataSource(dataRows, minValues, maxValues,
-                        heatMapFromKey, context),
+                        heatMapFromKey, context, widget.tournament),
                     stackedHeaderRows: [
                       StackedHeaderRow(cells: [
                         StackedHeaderCell(
@@ -253,11 +250,12 @@ class _RankingsTabState extends State<_RankingsTab> {
 }
 
 class _TeamDataSource extends DataGridSource {
-  _TeamDataSource(
-      this.rows, this.minValues, this.maxValues, this.heatMap, this.context);
+  _TeamDataSource(this.rows, this.minValues, this.maxValues, this.heatMap,
+      this.context, this.tournament);
   final Map<String, dynamic> minValues, maxValues, heatMap;
   final List<DataGridRow> rows;
   final BuildContext context;
+  final Tournament tournament;
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
@@ -270,6 +268,9 @@ class _TeamDataSource extends DataGridSource {
             : even
                 ? Theme.of(context).primaryColor.withOpacity(0.3)
                 : Colors.black.withOpacity(0);
+        if (e.columnName == 'team_number')
+          return Container(
+              color: color, child: TeamLink(int.parse(e.value), tournament));
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           alignment: Alignment.center,
@@ -333,11 +334,6 @@ class _ChartsTabState extends State<_ChartsTab> {
         });
       }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
       print('Error fetching data: $e');
     }
   }
@@ -364,123 +360,123 @@ class _ChartsTabState extends State<_ChartsTab> {
           Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: BarChartWithWeights(
-                  title: "OPR By Game Period",
+                  title: 'OPR By Game Period',
                   data: rankings,
                   number: 24,
                   startingFields: [
                     Field(
-                        name: "Auto",
-                        key: "auto_points",
+                        name: 'Auto',
+                        key: 'auto_points',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "Teleop",
-                        key: "teleop_points",
+                        name: 'Teleop',
+                        key: 'teleop_points',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "End Game",
-                        key: "endgame_points",
+                        name: 'End Game',
+                        key: 'endgame_points',
                         enabled: true,
                         weight: 1),
                   ])),
           Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: BarChartWithWeights(
-                  title: "Notes By Game Period",
+                  title: 'Notes By Game Period',
                   data: rankings,
                   number: 24,
                   startingFields: [
                     Field(
-                        name: "Teleop Notes",
-                        key: "teleop_notes",
+                        name: 'Teleop Notes',
+                        key: 'teleop_notes',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "Auto Notes",
-                        key: "auto_notes",
+                        name: 'Auto Notes',
+                        key: 'auto_notes',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "Endgame Notes",
-                        key: "trap",
+                        name: 'Endgame Notes',
+                        key: 'trap',
                         enabled: true,
                         weight: 1),
                   ])),
           Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: BarChartWithWeights(
-                  title: "Notes By Placement",
+                  title: 'Notes By Placement',
                   data: rankings,
                   number: 24,
                   startingFields: [
                     Field(
-                        name: "Speaker",
-                        key: "speaker_total",
+                        name: 'Speaker',
+                        key: 'speaker_total',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "Amp",
-                        key: "amp_total",
+                        name: 'Amp',
+                        key: 'amp_total',
                         enabled: true,
                         weight: 1),
-                    Field(name: "Trap", key: "trap", enabled: true, weight: 1),
+                    Field(name: 'Trap', key: 'trap', enabled: true, weight: 1),
                     Field(
-                        name: "Pass",
-                        key: "teleop_pass",
+                        name: 'Pass',
+                        key: 'teleop_pass',
                         enabled: true,
                         weight: 0.5),
                   ])),
           Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: BarChartWithWeights(
-                  title: "Full OPR Breakdown",
+                  title: 'Full OPR Breakdown',
                   data: rankings,
                   number: 24,
                   startingFields: [
                     new Field(
-                        name: "AS",
-                        key: "auto_speaker",
+                        name: 'AS',
+                        key: 'auto_speaker',
                         enabled: true,
                         weight: 5),
                     Field(
-                        name: "AA", key: "auto_amp", enabled: true, weight: 2),
+                        name: 'AA', key: 'auto_amp', enabled: true, weight: 2),
                     Field(
-                        name: "TS",
-                        key: "teleop_speaker",
+                        name: 'TS',
+                        key: 'teleop_speaker',
                         enabled: true,
                         weight: 2),
                     Field(
-                        name: "TAS",
-                        key: "teleop_amped_speaker",
+                        name: 'TAS',
+                        key: 'teleop_amped_speaker',
                         enabled: true,
                         weight: 5),
                     Field(
-                        name: "TA",
-                        key: "teleop_amp",
+                        name: 'TA',
+                        key: 'teleop_amp',
                         enabled: true,
                         weight: 1),
                     Field(
-                        name: "Pass",
-                        key: "teleop_pass",
+                        name: 'Pass',
+                        key: 'teleop_pass',
                         enabled: true,
                         weight: 1),
-                    Field(name: "Trap", key: "trap", enabled: true, weight: 5),
+                    Field(name: 'Trap', key: 'trap', enabled: true, weight: 5),
                     Field(
-                        name: "Taxi",
-                        key: "mobility",
+                        name: 'Taxi',
+                        key: 'mobility',
                         enabled: true,
                         weight: 2),
                     Field(
-                        name: "Park", key: "parking", enabled: true, weight: 1),
+                        name: 'Park', key: 'parking', enabled: true, weight: 1),
                     Field(
-                        name: "Climb",
-                        key: "climbing",
+                        name: 'Climb',
+                        key: 'climbing',
                         enabled: true,
                         weight: 3),
                     Field(
-                        name: "Deathrate",
-                        key: "death_rate",
+                        name: 'Deathrate',
+                        key: 'death_rate',
                         enabled: true,
                         weight: -10),
                   ])),
@@ -512,24 +508,158 @@ class _MatchScoutingTab extends StatelessWidget {
   }
 }
 
-class _PitScoutingTab extends StatelessWidget {
+class _PitScoutingTab extends StatefulWidget {
   final EventPage widget;
   const _PitScoutingTab(this.widget);
+
+  @override
+  State<StatefulWidget> createState() {
+    return new _PitScoutingTabState();
+  }
+}
+
+class _PitScoutingTabState extends State<_PitScoutingTab> {
+  List<GridColumn> dataColumns = [];
+  List<DataGridRow> dataRows = [];
+  List<dynamic> statuses = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    updateGrid();
+    fetchData().then((_) => updateGrid());
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStatus = await apiService.fetchPitStatus(
+          int.parse(widget.widget.tournament.page.split('/')[3]),
+          widget.widget.tournament.page.split('/')[4]);
+      if (mounted) {
+        setState(() {
+          statuses = fetchedStatus;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  void updateGrid() {
+    dataColumns = [
+      GridColumn(
+          columnName: 'key',
+          label: Text(
+            'Team',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'pit_status',
+          label: Text(
+            'Pit Scouting',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'picture_status',
+          label: Text(
+            'Pictures',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'follow_up_status',
+          label: Text(
+            'Follow Up',
+            textAlign: TextAlign.center,
+          )),
+    ];
+    dataRows = [
+      for (Map<String, dynamic> status in statuses)
+        DataGridRow(cells: [
+          DataGridCell(columnName: 'key', value: status['key']),
+          DataGridCell(columnName: 'pit_status', value: status['pit_status']),
+          DataGridCell(
+              columnName: 'picture_status', value: status['picture_status']),
+          DataGridCell(
+              columnName: 'follow_up_status',
+              value: status['follow_up_status']),
+        ])
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        children: [
-          Text(
-            widget.tournament.display,
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
-          Text(
-            'Pit Scouting Go Here',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          )
-        ],
-      ),
+        child: LayoutBuilder(
+            builder: (context, constraints) => Container(
+                alignment: Alignment.center,
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                child: InteractiveViewer(
+                  scaleEnabled: false,
+                  clipBehavior: Clip.hardEdge,
+                  child: SfDataGrid(
+                    columns: dataColumns,
+                    defaultColumnWidth: constraints.maxWidth / 4,
+                    frozenColumnsCount: 0,
+                    source: _StatusSource(
+                        context, dataRows, widget.widget.tournament),
+                    stackedHeaderRows: [
+                      StackedHeaderRow(cells: [
+                        StackedHeaderCell(
+                            columnNames: [
+                              for (var column in dataColumns) column.columnName
+                            ],
+                            child: Container(
+                                constraints: BoxConstraints.expand(),
+                                color: theme.primaryColor.withOpacity(0.3),
+                                child: Text(widget.widget.tournament.display)))
+                      ])
+                    ],
+                  ),
+                ))));
+  }
+}
+
+class _StatusSource extends DataGridSource {
+  final BuildContext context;
+  final List<DataGridRow> rows;
+  final Tournament tournament;
+  _StatusSource(BuildContext this.context, this.rows, this.tournament);
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    List<DataGridCell> cells = row.getCells();
+    List<Widget> returnCells = [];
+    for (DataGridCell cell in cells) {
+      int rowNumber = rows.indexOf(row);
+      bool even = rowNumber % 2 == 0;
+      final color = even
+          ? Theme.of(context).primaryColor.withOpacity(0.3)
+          : Colors.black.withOpacity(0);
+      cell.columnName == 'key'
+          ? returnCells.add(Container(
+              color: color,
+              child: TeamLink(
+                int.parse(cell.value),
+                tournament,
+              )))
+          : returnCells.add(Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              alignment: Alignment.center,
+              color: color,
+              child: Text(cell.value.toString(),
+                  style: TextStyle(
+                      color: cell.value == 'Incomplete'
+                          ? Colors.yellow
+                          : cell.value == 'Done'
+                              ? Colors.green
+                              : Colors.red)),
+            ));
+    }
+    return DataGridRowAdapter(
+      cells: returnCells,
     );
   }
 }

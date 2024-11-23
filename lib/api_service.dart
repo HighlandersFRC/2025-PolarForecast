@@ -114,4 +114,12 @@ class ApiService {
     data.removeAt(0);
     return [for (var x in data) TeamStats.fromJson(x)];
   }
+
+  Future<List<dynamic>> fetchPitStatus(int year, String event) async {
+    final cacheKey = '${year}_${event}_pit_status';
+    final url = '${APIURL}/${year}/${event}/pitStatus';
+    var data = (await _fetchFromAPI(url, cacheKey))['data'];
+    data = [...data];
+    return data;
+  }
 }
