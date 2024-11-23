@@ -663,13 +663,23 @@ class _MatchStatusSource extends DataGridSource {
   final BuildContext context;
   final List<DataGridRow> rows;
   final Tournament tournament;
-  _MatchStatusSource(BuildContext this.context, this.rows, this.tournament);
+  final List<dynamic> statuses;
+  _MatchStatusSource(
+      BuildContext this.context, this.rows, this.tournament, this.statuses);
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     List<DataGridCell> cells = row.getCells();
     List<Widget> returnCells = [];
+    Map<String, dynamic> matchStatus = {};
+    for (Map<String, dynamic> status in statuses) {
+      if (status["key"] == cells[0].value) {
+        matchStatus = status;
+        break;
+      }
+    }
     for (DataGridCell cell in cells) {
       int rowNumber = rows.indexOf(row);
+
       bool even = rowNumber % 2 == 0;
       final color = even
           ? Theme.of(context).primaryColor.withOpacity(0.3)
@@ -689,7 +699,7 @@ class _MatchStatusSource extends DataGridSource {
               ? returnCells.add(Container(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   alignment: Alignment.center,
-                  color: Colors.blue,
+                  color: matchStatus['blue_win_rp'] == 2 ? Colors.blue : color,
                   child: Text(
                     textScaleFactor: 1.25,
                     cell.value.toString(),
@@ -699,7 +709,8 @@ class _MatchStatusSource extends DataGridSource {
                   ? returnCells.add(Container(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
                       alignment: Alignment.center,
-                      color: Colors.red,
+                      color:
+                          matchStatus['red_win_rp'] == 2 ? Colors.red : color,
                       child: Text(
                         textScaleFactor: 1.25,
                         cell.value.toString(),
@@ -853,7 +864,7 @@ class _QualsTabState extends State<_QualsTab> {
                     defaultColumnWidth: constraints.maxWidth / 4,
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
-                        context, dataRows, widget.widget.tournament),
+                        context, dataRows, widget.widget.tournament, statuses),
                   ),
                 ))));
   }
@@ -994,7 +1005,7 @@ class _ElimsTabState extends State<_ElimsTab> {
                     defaultColumnWidth: constraints.maxWidth / 3,
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
-                        context, dataRows, widget.widget.tournament),
+                        context, dataRows, widget.widget.tournament, statuses),
                   ),
                 ))));
   }
