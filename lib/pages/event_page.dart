@@ -234,18 +234,6 @@ class _RankingsTabState extends State<_RankingsTab> {
                     frozenColumnsCount: 2,
                     source: _TeamDataSource(dataRows, minValues, maxValues,
                         heatMapFromKey, context, widget.tournament),
-                    stackedHeaderRows: [
-                      StackedHeaderRow(cells: [
-                        StackedHeaderCell(
-                            columnNames: [
-                              for (var column in dataColumns) column.columnName
-                            ],
-                            child: Container(
-                                constraints: BoxConstraints.expand(),
-                                color: theme.primaryColor.withOpacity(0.3),
-                                child: Text(widget.tournament.display)))
-                      ])
-                    ],
                   ),
                 ))));
   }
@@ -553,28 +541,40 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
     dataColumns = [
       GridColumn(
           columnName: 'key',
-          label: Text(
-            'Team',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Team',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'pit_status',
-          label: Text(
-            'Pit Scouting',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Pit Scouting',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'picture_status',
-          label: Text(
-            'Pictures',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Pictures',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'follow_up_status',
-          label: Text(
-            'Follow Up',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Follow Up',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
     ];
     dataRows = [
       for (Map<String, dynamic> status in statuses)
@@ -608,18 +608,6 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
                     frozenColumnsCount: 0,
                     source: _StatusSource(
                         context, dataRows, widget.widget.tournament),
-                    stackedHeaderRows: [
-                      StackedHeaderRow(cells: [
-                        StackedHeaderCell(
-                            columnNames: [
-                              for (var column in dataColumns) column.columnName
-                            ],
-                            child: Container(
-                                constraints: BoxConstraints.expand(),
-                                color: theme.primaryColor.withOpacity(0.3),
-                                child: Text(widget.widget.tournament.display)))
-                      ])
-                    ],
                   ),
                 ))));
   }
@@ -642,6 +630,8 @@ class _StatusSource extends DataGridSource {
           : Colors.black.withOpacity(0);
       cell.columnName == 'key'
           ? returnCells.add(Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              alignment: Alignment.center,
               color: color,
               child: TeamLink(
                 int.parse(cell.value),
@@ -652,6 +642,7 @@ class _StatusSource extends DataGridSource {
               alignment: Alignment.center,
               color: color,
               child: Text(cell.value.toString(),
+                  textScaleFactor: 1.25,
                   style: TextStyle(
                       color: cell.value == 'Incomplete'
                           ? Colors.yellow
@@ -683,17 +674,58 @@ class _MatchStatusSource extends DataGridSource {
           : Colors.black.withOpacity(0);
       cell.columnName == 'key'
           ? returnCells.add(Container(
-              color: color,
-              child: Text(cell.value.toString(),
-                  style: TextStyle(color: Colors.white))))
-          : returnCells.add(Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               alignment: Alignment.center,
               color: color,
-              child: Text(
-                cell.value.toString(),
-              ),
-            ));
+              child: Text(cell.value.toString(),
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                  style: TextStyle(
+                    color: Colors.white,
+                  ))))
+          : cell.columnName == 'blue_rp'
+              ? returnCells.add(Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  alignment: Alignment.center,
+                  color: Colors.blue,
+                  child: Text(
+                    textScaleFactor: 1.25,
+                    cell.value.toString(),
+                  ),
+                ))
+              : cell.columnName == 'red_rp'
+                  ? returnCells.add(Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      alignment: Alignment.center,
+                      color: Colors.red,
+                      child: Text(
+                        textScaleFactor: 1.25,
+                        cell.value.toString(),
+                      ),
+                    ))
+                  : cell.columnName == 'winner'
+                      ? returnCells.add(Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          alignment: Alignment.center,
+                          color: cell.value == 'Red'
+                              ? Colors.red
+                              : cell.value == 'Blue'
+                                  ? Colors.blue
+                                  : Colors.purple,
+                          child: Text(
+                            textScaleFactor: 1.25,
+                            cell.value.toString(),
+                          ),
+                        ))
+                      : returnCells.add(Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          alignment: Alignment.center,
+                          color: color,
+                          child: Text(
+                            textScaleFactor: 1.25,
+                            cell.value.toString(),
+                          ),
+                        ));
     }
     return DataGridRowAdapter(
       cells: returnCells,
@@ -745,28 +777,40 @@ class _QualsTabState extends State<_QualsTab> {
     dataColumns = [
       GridColumn(
           columnName: 'key',
-          label: Text(
-            'Match',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Match',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'result_type',
-          label: Text(
-            'Type',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Type',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'blue_rp',
-          label: Text(
-            'Blue RP',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Blue RP',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'red_rp',
-          label: Text(
-            'Red RP',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Red RP',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
     ];
 
     statuses.sort((a, b) {
@@ -777,7 +821,9 @@ class _QualsTabState extends State<_QualsTab> {
       for (Map<String, dynamic> status in statuses)
         if (status['comp_level'] == 'qm')
           DataGridRow(cells: [
-            DataGridCell(columnName: 'key', value: status['key']),
+            DataGridCell(
+                columnName: 'key',
+                value: 'Quals ' + status['match_number'].toString()),
             DataGridCell(
                 columnName: 'result_type',
                 value: status['predicted'] ? 'Predicted' : 'Result'),
@@ -806,18 +852,6 @@ class _QualsTabState extends State<_QualsTab> {
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
                         context, dataRows, widget.widget.tournament),
-                    stackedHeaderRows: [
-                      StackedHeaderRow(cells: [
-                        StackedHeaderCell(
-                            columnNames: [
-                              for (var column in dataColumns) column.columnName
-                            ],
-                            child: Container(
-                                constraints: BoxConstraints.expand(),
-                                color: theme.primaryColor.withOpacity(0.3),
-                                child: Text(widget.widget.tournament.display)))
-                      ])
-                    ],
                   ),
                 ))));
   }
@@ -867,22 +901,31 @@ class _ElimsTabState extends State<_ElimsTab> {
     dataColumns = [
       GridColumn(
           columnName: 'key',
-          label: Text(
-            'Match',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Match',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'result_type',
-          label: Text(
-            'Type',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Type',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
       GridColumn(
           columnName: 'winner',
-          label: Text(
-            'Winner',
-            textAlign: TextAlign.center,
-          )),
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Winner',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
     ];
 
     statuses.sort((a, b) {
@@ -913,13 +956,21 @@ class _ElimsTabState extends State<_ElimsTab> {
       for (Map<String, dynamic> status in statuses)
         if (status['comp_level'] != 'qm')
           DataGridRow(cells: [
-            DataGridCell(columnName: 'key', value: status['key']),
+            DataGridCell(
+                columnName: 'key',
+                value: status['comp_level'] == 'sf'
+                    ? ('Semi-Finals ' + status['set_number'].toString())
+                    : ('Finals ' + status['match_number'].toString())),
             DataGridCell(
                 columnName: 'result_type',
                 value: status['predicted'] ? 'Predicted' : 'Result'),
             DataGridCell(
-                columnName: 'winner', 
-                value: status['blue_win_rp'] == 2 ? 'Blue' : status['blue_win_rp'] == 0 ? 'Red' : 'Tie'),
+                columnName: 'winner',
+                value: status['blue_win_rp'] == 2
+                    ? 'Blue'
+                    : status['blue_win_rp'] == 0
+                        ? 'Red'
+                        : 'Tie'),
           ])
     ];
   }
@@ -942,18 +993,6 @@ class _ElimsTabState extends State<_ElimsTab> {
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
                         context, dataRows, widget.widget.tournament),
-                    stackedHeaderRows: [
-                      StackedHeaderRow(cells: [
-                        StackedHeaderCell(
-                            columnNames: [
-                              for (var column in dataColumns) column.columnName
-                            ],
-                            child: Container(
-                                constraints: BoxConstraints.expand(),
-                                color: theme.primaryColor.withOpacity(0.3),
-                                child: Text(widget.widget.tournament.display)))
-                      ])
-                    ],
                   ),
                 ))));
   }
