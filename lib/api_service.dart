@@ -122,4 +122,13 @@ class ApiService {
     data = [...data];
     return data;
   }
+
+  Future<List<dynamic>> fetchQualMatches(int year, String event) async {
+    final cacheKey = '${year}_${event}_predictions';
+    final url = '${APIURL}/${year}/${event}/predictions';
+    var data = (await _fetchFromAPI(url, cacheKey))['data'];
+    data = [...data];
+    return data;
+  }
+
 }
