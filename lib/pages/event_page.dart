@@ -40,7 +40,9 @@ class _EventPageState extends State<EventPage> {
       _AutosTab(widget),
     ];
     return Scaffold(
-      appBar: PolarForecastAppBar(),
+      appBar: PolarForecastAppBar(
+        extraText: widget.tournament.display,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
         onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),

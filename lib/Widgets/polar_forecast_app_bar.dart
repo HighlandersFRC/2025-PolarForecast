@@ -10,8 +10,9 @@ class PolarForecastAppBar extends StatefulWidget
     implements PreferredSizeWidget {
   @override
   final Size preferredSize;
+  final String? extraText;
 
-  const PolarForecastAppBar({super.key})
+  const PolarForecastAppBar({super.key, this.extraText})
       : preferredSize = const Size.fromHeight(kToolbarHeight);
 
   @override
@@ -43,31 +44,37 @@ class _PolarForecastAppBarState extends State<PolarForecastAppBar> {
       }
       return Platform.isAndroid || Platform.isIOS;
     }
+
     return AppBar(
       automaticallyImplyLeading: true,
-      title: !isMobile() ?Row(
-        children: [
-          Image.asset(
-            'assets/PolarBearHead.png',
-            height: kToolbarHeight * 0.8, // Adjust size based on screen width
-          ),
-          const SizedBox(width: 8), // Add some spacing between image and text
-          Flexible(
-            child: Text(
-              'Polar Forecast',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: kToolbarHeight * 0.8, // Adjust font size based on screen width
-                fontFamily: 'OpenSans',
-              ),
-              overflow: TextOverflow.fade, // Prevent overflow
+      title: !isMobile()
+          ? Row(
+              children: [
+                Image.asset(
+                  'assets/PolarBearHead.png',
+                  height:
+                      kToolbarHeight * 0.8, // Adjust size based on screen width
+                ),
+                const SizedBox(
+                    width: 8), // Add some spacing between image and text
+                Flexible(
+                  child: Text(
+                    'Polar Forecast ${widget.extraText ?? ''}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: kToolbarHeight *
+                          0.8, // Adjust font size based on screen width
+                      fontFamily: 'OpenSans',
+                    ),
+                    overflow: TextOverflow.fade, // Prevent overflow
+                  ),
+                ),
+              ],
+            )
+          : Image.asset(
+              'assets/PolarBearHead.png',
+              height: kToolbarHeight * 0.8, // Adjust size based on screen width
             ),
-          ),
-        ],
-      ): Image.asset(
-            'assets/PolarBearHead.png',
-            height: kToolbarHeight * 0.8, // Adjust size based on screen width
-          ),
       actions: [
         IconButton(
           icon: const Icon(Icons.search),
@@ -105,12 +112,14 @@ class _PolarForecastAppBarState extends State<PolarForecastAppBar> {
           title: Text(tournament.display),
           onTap: () {
             Navigator.pop(context);
-            
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) => EventPage(
-                tournament: tournament,
-              ),
-            ));
+
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventPage(
+                    tournament: tournament,
+                  ),
+                ));
           },
         );
       })
