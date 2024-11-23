@@ -40,7 +40,9 @@ class _EventPageState extends State<EventPage> {
       _AutosTab(widget),
     ];
     return Scaffold(
-      appBar: PolarForecastAppBar(),
+      appBar: PolarForecastAppBar(
+        extraText: widget.tournament.display,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
         onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),
@@ -126,7 +128,10 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   void updateGrid() {
     dataColumns = [
-      GridColumn(label: Text('#'), columnName: 'team_number', filterPopupMenuOptions: FilterPopupMenuOptions()),
+      GridColumn(
+          label: Text('#'),
+          columnName: 'team_number',
+          filterPopupMenuOptions: FilterPopupMenuOptions()),
       GridColumn(label: Text('OPR'), columnName: 'OPR'),
     ];
     heatMapFromKey = {
@@ -225,7 +230,6 @@ class _RankingsTabState extends State<_RankingsTab> {
                   scaleEnabled: false,
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
-                    
                     allowFiltering: true,
                     allowSorting: true,
                     columns: dataColumns,

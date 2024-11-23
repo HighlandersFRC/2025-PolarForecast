@@ -38,7 +38,9 @@ class _TeamPageState extends State<TeamPage> {
       _DeathsTab(widget),
     ];
     return Scaffold(
-      appBar: PolarForecastAppBar(),
+      appBar: PolarForecastAppBar(
+        extraText: '${widget.number} - ${widget.tournament.display}',
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
         onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),
@@ -102,7 +104,7 @@ class _ScheduleTabState extends State<_ScheduleTab> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        children: [Text("Schedule")],
+        children: [Text('Schedule')],
       ),
     );
   }
@@ -197,13 +199,73 @@ class _PicturesTab extends StatefulWidget {
 }
 
 class _PicturesTabState extends State<_PicturesTab> {
+  List<Image> images = [];
+  bool isLoading = true;
+  void fetchPictures() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStats = await apiService.fetchTeamImages(
+        int.parse(widget.widget.tournament.page.split('/')[3]),
+        widget.widget.tournament.page.split('/')[4],
+        'frc${widget.widget.number}',
+      );
+      if (mounted) {
+        setState(() {
+          images = fetchedStats;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPictures();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [Text("Pictures")],
-      ),
-    );
+    return Center(child: LayoutBuilder(builder: (context, constraints) {
+      List<Widget> displayImages = images.map((image) {
+        return GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  insetPadding:
+                      EdgeInsets.all(10), // Adjust padding around the dialog
+                  child: Container(
+                    child: Image(
+                      image: image.image,
+                      fit: BoxFit
+                          .contain, // Display the full-sized image within the dialog
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Container(
+            width: constraints.maxWidth / 3,
+            height: constraints.maxWidth / 3,
+            child: Image(
+              image: image.image,
+              fit: BoxFit.cover, // Thumbnail view
+            ),
+          ),
+        );
+      }).toList();
+      return SingleChildScrollView(
+          child: Column(children: [
+        Wrap(
+          children: displayImages,
+        ),
+      ]));
+    }));
   }
 }
 
@@ -221,7 +283,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        children: [Text("MatchScouting")],
+        children: [Text('MatchScouting')],
       ),
     );
   }
@@ -241,7 +303,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        children: [Text("PitScouting")],
+        children: [Text('PitScouting')],
       ),
     );
   }
@@ -261,7 +323,7 @@ class _AutosTabState extends State<_AutosTab> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        children: [Text("Autos")],
+        children: [Text('Autos')],
       ),
     );
   }
@@ -281,7 +343,7 @@ class _DeathsTabState extends State<_DeathsTab> {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        children: [Text("Deaths")],
+        children: [Text('Deaths')],
       ),
     );
   }

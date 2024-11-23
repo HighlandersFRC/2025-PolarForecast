@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class Tournament {
@@ -39,8 +40,6 @@ class TeamStats {
       number: int.parse(json['team_number']),
     );
   }
-
-  
 }
 
 class ApiService {
@@ -86,7 +85,8 @@ class ApiService {
     final cacheKey = 'tournaments';
     final url = '$APIURL/search_keys';
     final tournaments = [
-      for (var x in ((await _fetchFromAPI(url, cacheKey) as Map<String, dynamic>)['data']))
+      for (var x in ((await _fetchFromAPI(url, cacheKey)
+          as Map<String, dynamic>)['data']))
         Tournament.fromJson(x)
     ];
     return tournaments;
@@ -121,5 +121,17 @@ class ApiService {
     var data = (await _fetchFromAPI(url, cacheKey))['data'];
     data = [...data];
     return data;
+  }
+
+  Future<List<Image>> fetchTeamImages(
+      int year, String event, String team) async {
+    final cacheKey = '${year}_${event}_${team}_pictures';
+    final url = '${APIURL}/${year}/${event}/${team}/getPictures';
+    var data = (await _fetchFromAPI(url, cacheKey));
+    List<Image> returnImages = [];
+    for (Map<String, dynamic> imageData in data) {
+      returnImages.add(Image.memory(base64Decode(imageData['file'])));
+    }
+    return returnImages;
   }
 }
