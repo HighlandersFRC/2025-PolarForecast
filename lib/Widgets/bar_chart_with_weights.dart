@@ -116,6 +116,13 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
       Colors.blueGrey,
       Colors.greenAccent,
     ];
+    bool isMobile() {
+      try {
+        return (Platform.isAndroid || Platform.isIOS);
+      } catch (e) {
+        return false;
+      }
+    }
     return Column(
       children: [
         Text(
@@ -126,7 +133,7 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
           tooltipBehavior:
               TooltipBehavior(enable: true, shared: true, opacity: 0.8),
           primaryXAxis: CategoryAxis(
-            labelRotation: (Platform.isAndroid || Platform.isIOS)? 90:0,
+            labelRotation: isMobile()?90:0,
             labelIntersectAction: AxisLabelIntersectAction.multipleRows,
           ),
           legend: Legend(),
