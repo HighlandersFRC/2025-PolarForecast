@@ -668,48 +668,296 @@ class _StatusSource extends DataGridSource {
   }
 }
 
-class _QualsTab extends StatelessWidget {
-  final EventPage widget;
-  const _QualsTab(this.widget);
-
+class _MatchStatusSource extends DataGridSource {
+  final BuildContext context;
+  final List<DataGridRow> rows;
+  final Tournament tournament;
+  _MatchStatusSource(BuildContext this.context, this.rows, this.tournament);
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [
-          Text(
-            widget.tournament.display,
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
-          Text(
-            'Qualifications Go Here',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          )
-        ],
-      ),
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    List<DataGridCell> cells = row.getCells();
+    List<Widget> returnCells = [];
+    for (DataGridCell cell in cells) {
+      int rowNumber = rows.indexOf(row);
+      bool even = rowNumber % 2 == 0;
+      final color = even
+          ? Theme.of(context).primaryColor.withOpacity(0.3)
+          : Colors.black.withOpacity(0);
+      cell.columnName == 'key'
+          ? returnCells.add(Container(
+              color: color,
+              child: Text(cell.value.toString(),
+                  style: TextStyle(color: Colors.white))))
+          : returnCells.add(Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              alignment: Alignment.center,
+              color: color,
+              child: Text(
+                cell.value.toString(),
+              ),
+            ));
+    }
+    return DataGridRowAdapter(
+      cells: returnCells,
     );
   }
 }
 
-class _ElimsTab extends StatelessWidget {
+class _QualsTab extends StatefulWidget {
   final EventPage widget;
-  const _ElimsTab(this.widget);
+  const _QualsTab(this.widget);
+
+  @override
+  State<StatefulWidget> createState() {
+    return new _QualsTabState();
+  }
+}
+
+class _QualsTabState extends State<_QualsTab> {
+  List<GridColumn> dataColumns = [];
+  List<DataGridRow> dataRows = [];
+  List<dynamic> statuses = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    updateGrid();
+    fetchData().then((_) => updateGrid());
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStatus = await apiService.fetchQualMatches(
+          int.parse(widget.widget.tournament.page.split('/')[3]),
+          widget.widget.tournament.page.split('/')[4]);
+      if (mounted) {
+        setState(() {
+          statuses = fetchedStatus;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // print('Error fetching data: $e');
+      throw (e);
+    }
+  }
+
+  void updateGrid() {
+    dataColumns = [
+      GridColumn(
+          columnName: 'key',
+          label: Text(
+            'Match',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'result_type',
+          label: Text(
+            'Type',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'blue_rp',
+          label: Text(
+            'Blue RP',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'red_rp',
+          label: Text(
+            'Red RP',
+            textAlign: TextAlign.center,
+          )),
+    ];
+
+    statuses.sort((a, b) {
+      return a['match_number'] - b['match_number'];
+    });
+
+    dataRows = [
+      for (Map<String, dynamic> status in statuses)
+        if (status['comp_level'] == 'qm')
+          DataGridRow(cells: [
+            DataGridCell(columnName: 'key', value: status['key']),
+            DataGridCell(
+                columnName: 'result_type',
+                value: status['predicted'] ? 'Predicted' : 'Result'),
+            DataGridCell(
+                columnName: 'blue_rp', value: status['blue_display_rp']),
+            DataGridCell(columnName: 'red_rp', value: status['red_display_rp']),
+          ])
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        children: [
-          Text(
-            widget.tournament.display,
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
-          Text(
-            'Eliminations Go Here',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          )
-        ],
-      ),
-    );
+        child: LayoutBuilder(
+            builder: (context, constraints) => Container(
+                alignment: Alignment.center,
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                child: InteractiveViewer(
+                  scaleEnabled: false,
+                  clipBehavior: Clip.hardEdge,
+                  child: SfDataGrid(
+                    columns: dataColumns,
+                    defaultColumnWidth: constraints.maxWidth / 4,
+                    frozenColumnsCount: 0,
+                    source: _MatchStatusSource(
+                        context, dataRows, widget.widget.tournament),
+                    stackedHeaderRows: [
+                      StackedHeaderRow(cells: [
+                        StackedHeaderCell(
+                            columnNames: [
+                              for (var column in dataColumns) column.columnName
+                            ],
+                            child: Container(
+                                constraints: BoxConstraints.expand(),
+                                color: theme.primaryColor.withOpacity(0.3),
+                                child: Text(widget.widget.tournament.display)))
+                      ])
+                    ],
+                  ),
+                ))));
+  }
+}
+
+class _ElimsTab extends StatefulWidget {
+  final EventPage widget;
+  const _ElimsTab(this.widget);
+
+  @override
+  State<StatefulWidget> createState() {
+    return new _ElimsTabState();
+  }
+}
+
+class _ElimsTabState extends State<_ElimsTab> {
+  List<GridColumn> dataColumns = [];
+  List<DataGridRow> dataRows = [];
+  List<dynamic> statuses = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    updateGrid();
+    fetchData().then((_) => updateGrid());
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStatus = await apiService.fetchQualMatches(
+          int.parse(widget.widget.tournament.page.split('/')[3]),
+          widget.widget.tournament.page.split('/')[4]);
+      if (mounted) {
+        setState(() {
+          statuses = fetchedStatus;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // print('Error fetching data: $e');
+      throw (e);
+    }
+  }
+
+  void updateGrid() {
+    dataColumns = [
+      GridColumn(
+          columnName: 'key',
+          label: Text(
+            'Match',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'result_type',
+          label: Text(
+            'Type',
+            textAlign: TextAlign.center,
+          )),
+      GridColumn(
+          columnName: 'winner',
+          label: Text(
+            'Winner',
+            textAlign: TextAlign.center,
+          )),
+    ];
+
+    statuses.sort((a, b) {
+      return a['match_number'] - b['match_number'];
+    });
+
+    statuses.sort((a, b) {
+      if (a['set_number'] - b['set_number'] == 0) {
+        return a['match_number'] - b['match_number'];
+      } else {
+        return a['set_number'] - b['set_number'];
+      }
+    });
+
+    statuses.sort((a, b) {
+      if (b['comp_level'].length - a['comp_level'].length != 0) {
+        return b['comp_level'].length - a['comp_level'].length;
+      } else {
+        if (a['set_number'] - b['set_number'] == 0) {
+          return a['match_number'] - b['match_number'];
+        } else {
+          return a['set_number'] - b['set_number'];
+        }
+      }
+    });
+
+    dataRows = [
+      for (Map<String, dynamic> status in statuses)
+        if (status['comp_level'] != 'qm')
+          DataGridRow(cells: [
+            DataGridCell(columnName: 'key', value: status['key']),
+            DataGridCell(
+                columnName: 'result_type',
+                value: status['predicted'] ? 'Predicted' : 'Result'),
+            DataGridCell(
+                columnName: 'winner', 
+                value: status['blue_win_rp'] == 2 ? 'Blue' : status['blue_win_rp'] == 0 ? 'Red' : 'Tie'),
+          ])
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+        child: LayoutBuilder(
+            builder: (context, constraints) => Container(
+                alignment: Alignment.center,
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                child: InteractiveViewer(
+                  scaleEnabled: false,
+                  clipBehavior: Clip.hardEdge,
+                  child: SfDataGrid(
+                    columns: dataColumns,
+                    defaultColumnWidth: constraints.maxWidth / 3,
+                    frozenColumnsCount: 0,
+                    source: _MatchStatusSource(
+                        context, dataRows, widget.widget.tournament),
+                    stackedHeaderRows: [
+                      StackedHeaderRow(cells: [
+                        StackedHeaderCell(
+                            columnNames: [
+                              for (var column in dataColumns) column.columnName
+                            ],
+                            child: Container(
+                                constraints: BoxConstraints.expand(),
+                                color: theme.primaryColor.withOpacity(0.3),
+                                child: Text(widget.widget.tournament.display)))
+                      ])
+                    ],
+                  ),
+                ))));
   }
 }
 
