@@ -90,26 +90,6 @@ class _TeamPageState extends State<TeamPage> {
   }
 }
 
-class _ScheduleTab extends StatefulWidget {
-  final TeamPage widget;
-
-  const _ScheduleTab(this.widget);
-
-  @override
-  _ScheduleTabState createState() => _ScheduleTabState();
-}
-
-class _ScheduleTabState extends State<_ScheduleTab> {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        children: [Text('Schedule')],
-      ),
-    );
-  }
-}
-
 class _StatsTab extends StatefulWidget {
   final TeamPage widget;
 
@@ -123,6 +103,7 @@ class _StatsTabState extends State<_StatsTab> {
   Map<String, dynamic> stats = {};
   Map<String, dynamic> statDescription = {'data': []};
   bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -153,39 +134,93 @@ class _StatsTabState extends State<_StatsTab> {
     }
   }
 
+  String formatValue(dynamic value) {
+    if (value is int || value is double) {
+      return value.toStringAsFixed(2);
+    }
+    return value.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-        child: SingleChildScrollView(
+      child: isLoading
+          ? CircularProgressIndicator()
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${widget.widget.tournament.display} - Team ${widget.widget.number} Stats',
+                      style: TextStyle(
+                          color: theme.primaryColor,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    Wrap(
+                      spacing: 16,
+                      runSpacing: 16,
+                      children: [
+                        ...stats.entries.map((entry) {
+                          return Card(
+                            elevation: 5,
+                            shadowColor: theme.primaryColor.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    entry.key,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: theme.primaryColor),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    formatValue(entry.value),
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+}
+
+class _ScheduleTab extends StatefulWidget {
+  final TeamPage widget;
+
+  const _ScheduleTab(this.widget);
+
+  @override
+  _ScheduleTabState createState() => _ScheduleTabState();
+}
+
+class _ScheduleTabState extends State<_ScheduleTab> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
       child: Column(
-        children: [
-          Text(
-            '${widget.widget.tournament.display} - Team ${widget.widget.number} Stats',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              ...stats.entries.map((entry) => Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: theme.primaryColor,
-                      ),
-                      color: theme.primaryColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      children: [Text(entry.key), Text(entry.value.toString())],
-                    ),
-                  )),
-            ],
-          ),
-        ],
+        children: [Text('Schedule')],
       ),
-    ));
+    );
   }
 }
 
@@ -201,6 +236,7 @@ class _PicturesTab extends StatefulWidget {
 class _PicturesTabState extends State<_PicturesTab> {
   List<Image> images = [];
   bool isLoading = true;
+
   void fetchPictures() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
@@ -228,47 +264,66 @@ class _PicturesTabState extends State<_PicturesTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: LayoutBuilder(builder: (context, constraints) {
-      List<Widget> displayImages = images.map((image) {
-        return GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  insetPadding:
-                      EdgeInsets.all(10), // Adjust padding around the dialog
-                  child: Container(
-                    child: Image(
-                      image: image.image,
-                      fit: BoxFit
-                          .contain, // Display the full-sized image within the dialog
-                    ),
+    return Center(
+      child: isLoading
+          ? CircularProgressIndicator()
+          : LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.builder(
+                  padding: EdgeInsets.all(8),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: constraints.maxWidth > 600 ? 4 : 2,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
                   ),
+                  itemCount: images.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              insetPadding: EdgeInsets.all(10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image(
+                                  image: images[index].image,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: AnimatedContainer(
+                        duration: Duration(milliseconds: 300),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image(
+                            image: images[index].image,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
-            );
-          },
-          child: Container(
-            width: constraints.maxWidth / 3,
-            height: constraints.maxWidth / 3,
-            child: Image(
-              image: image.image,
-              fit: BoxFit.cover, // Thumbnail view
             ),
-          ),
-        );
-      }).toList();
-      return SingleChildScrollView(
-          child: Column(children: [
-        Wrap(
-          children: displayImages,
-        ),
-      ]));
-    }));
+    );
   }
 }
-
 class _MatchScoutingTab extends StatefulWidget {
   final TeamPage widget;
 
