@@ -428,7 +428,7 @@ class _ChartsTabState extends State<_ChartsTab> {
               ];
             }
             List<dynamic> secondTeamScoutingData = [];
-            if (selectedTeam != 0)
+            if (secondTeam != 0)
               for (var entry in scouting) {
                 if (entry['active'] &&
                     int.parse(entry['team_number']) == teams[secondTeam - 1]) {
