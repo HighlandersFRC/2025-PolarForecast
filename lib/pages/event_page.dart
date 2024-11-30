@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/bar_chart_with_weights.dart';
 import 'package:scouting_app/Widgets/team_link.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
@@ -307,7 +309,13 @@ class _ChartsTabState extends State<_ChartsTab> {
   List<TeamStats> rankings = [];
   Map<String, dynamic> statDescription = {'data': []};
   bool isLoading = true;
-
+  List<dynamic> scouting = [];
+  List<int> teams = [];
+  int selectedTeam = 0;
+  int secondTeam = 0;
+  int lastMatch = 1;
+  int firstMatch = 0;
+  bool comparing = false;
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
@@ -317,12 +325,22 @@ class _ChartsTabState extends State<_ChartsTab> {
       final fetchedStatDescription = await apiService.fetchStatDescription(
           int.parse(widget.widget.tournament.page.split('/')[3]),
           widget.widget.tournament.page.split('/')[4]);
-
+      final fetchedScouting = await apiService.fetchEventScouting(
+          int.parse(widget.widget.tournament.page.split('/')[3]),
+          widget.widget.tournament.page.split('/')[4]);
       if (mounted) {
         setState(() {
           rankings = fetchedRankings;
           statDescription = fetchedStatDescription;
           isLoading = false;
+          scouting = fetchedScouting;
+          scouting.forEach((entry) {
+            if (!teams.contains(int.parse(entry['team_number'])))
+              teams.add(int.parse(entry['team_number']));
+            if (int.parse(entry['match_number'].toString()) > lastMatch)
+              lastMatch = int.parse(entry['match_number'].toString());
+          });
+          teams.sort((a, b) => a - b);
         });
       }
     } catch (e) {
@@ -345,10 +363,270 @@ class _ChartsTabState extends State<_ChartsTab> {
         child: SingleChildScrollView(
       child: Column(
         children: [
-          Text(
-            widget.widget.tournament.display,
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
+          LayoutBuilder(builder: (context, constraints) {
+            List<dynamic> teamScoutingData = [];
+            if (selectedTeam != 0)
+              for (var entry in scouting) {
+                if (entry['active'] &&
+                    int.parse(entry['team_number']) ==
+                        teams[selectedTeam - 1]) {
+                  teamScoutingData.add(entry);
+                }
+              }
+            teamScoutingData
+                .sort((a, b) => a['match_number'] - b['match_number']);
+            Map<String, List> seriesData = {
+              'matches': [],
+              'entries': [],
+            };
+            List<String> seriesLabels = [
+              'auto_amp',
+              'auto_speaker',
+              'teleop_amp',
+              'teleop_speaker',
+              'teleop_amped_speaker',
+              'teleop_pass',
+            ];
+            for (var series in seriesLabels) {
+              seriesData[series] = [];
+            }
+            for (var entry in teamScoutingData) {
+              entry['data'].remove('miscellaneous');
+              entry['data'].remove('selectedPieces');
+              var flattened = flatten(
+                entry['data'],
+                delimiter: '_',
+              );
+              if (!seriesData['matches']!.contains(entry['match_number'])) {
+                seriesData['matches']?.add(entry['match_number']);
+                seriesData['entries']?.add(1);
+                for (var label in seriesLabels) {
+                  try {
+                    seriesData[label]?.add(flattened[label] ?? 0);
+                  } catch (e) {
+                    seriesData[label]?.add(0);
+                  }
+                }
+              } else {
+                seriesData['entries']?[
+                    seriesData['matches']!.indexOf(entry['match_number'])] += 1;
+                for (var label in seriesLabels) {
+                  try {
+                    seriesData[label]?[seriesData['matches']!
+                        .indexOf(entry['match_number'])] += flattened[label];
+                  } catch (e) {}
+                }
+              }
+            }
+            List<int> entries = [...?seriesData.remove('entries')];
+            List<int> matches = [...?seriesData.remove('matches')];
+            for (var object in seriesData.entries) {
+              seriesData[object.key] = [
+                ...seriesData[object.key]!
+                    .indexed
+                    .map((val) => val.$2 / entries[val.$1])
+              ];
+            }
+            List<dynamic> secondTeamScoutingData = [];
+            if (selectedTeam != 0)
+              for (var entry in scouting) {
+                if (entry['active'] &&
+                    int.parse(entry['team_number']) == teams[secondTeam - 1]) {
+                  secondTeamScoutingData.add(entry);
+                }
+              }
+            secondTeamScoutingData
+                .sort((a, b) => a['match_number'] - b['match_number']);
+            Map<String, List> secondSeriesData = {
+              'matches': [],
+              'entries': [],
+            };
+            for (var series in seriesLabels) {
+              secondSeriesData[series] = [];
+            }
+            for (var entry in secondTeamScoutingData) {
+              entry['data'].remove('miscellaneous');
+              entry['data'].remove('selectedPieces');
+              var flattened = flatten(
+                entry['data'],
+                delimiter: '_',
+              );
+              if (!secondSeriesData['matches']!
+                  .contains(entry['match_number'])) {
+                secondSeriesData['matches']?.add(entry['match_number']);
+                secondSeriesData['entries']?.add(1);
+                for (var label in seriesLabels) {
+                  try {
+                    secondSeriesData[label]?.add(flattened[label] ?? 0);
+                  } catch (e) {
+                    secondSeriesData[label]?.add(0);
+                  }
+                }
+              } else {
+                secondSeriesData['entries']?[secondSeriesData['matches']!
+                    .indexOf(entry['match_number'])] += 1;
+                for (var label in seriesLabels) {
+                  try {
+                    secondSeriesData[label]?[secondSeriesData['matches']!
+                        .indexOf(entry['match_number'])] += flattened[label];
+                  } catch (e) {}
+                }
+              }
+            }
+            List<int> secondEntries = [...?secondSeriesData.remove('entries')];
+            List<int> secondMatches = [...?secondSeriesData.remove('matches')];
+            for (var object in secondSeriesData.entries) {
+              secondSeriesData[object.key] = [
+                ...secondSeriesData[object.key]!
+                    .indexed
+                    .map((val) => val.$2 / secondEntries[val.$1])
+              ];
+            }
+            return Row(children: [
+              Column(children: [
+                Padding(
+                  padding: EdgeInsets.all(
+                    30,
+                  ),
+                  child: Row(children: [
+                    DropdownButton<int>(
+                      items: [
+                        DropdownMenuItem(
+                          child: Text('Select a Team'),
+                          value: 0,
+                        ),
+                        ...teams.map((team) => DropdownMenuItem(
+                              child: Text('Team $team'),
+                              value: teams.indexOf(team) + 1,
+                            ))
+                      ],
+                      onChanged: (team) => setState(() {
+                        selectedTeam = team ?? 0;
+                      }),
+                      value: selectedTeam,
+                    ),
+                    Tooltip(
+                        message: 'Compare',
+                        child: IconButton(
+                            icon: comparing
+                                ? Icon(Icons.compare_arrows)
+                                : Icon(Icons.compare_arrows,
+                                    color: Colors.blue),
+                            onPressed: () => setState(() {
+                                  comparing = !comparing;
+                                })))
+                  ]),
+                ),
+                Row(children: [
+                  AnimatedSize(
+                      curve: Curves.decelerate,
+                      alignment: Alignment(0, 0),
+                      duration: Duration(milliseconds: 500),
+                      child: Container(
+                          width: comparing
+                              ? constraints.maxWidth / 2
+                              : constraints.maxWidth,
+                          child: SfCartesianChart(
+                              primaryXAxis: NumericAxis(
+                                minimum: firstMatch.toDouble(),
+                                maximum: lastMatch.toDouble(),
+                              ),
+                              legend: Legend(
+                                  isVisible: true,
+                                  position: LegendPosition.bottom),
+                              tooltipBehavior: TooltipBehavior(
+                                enable: true,
+                                shared: true,
+                              ),
+                              series: [
+                                ...seriesData.entries.toList().map((entry) {
+                                  return StackedAreaSeries<double, int>(
+                                      enableTooltip: true,
+                                      animationDuration: 500,
+                                      name: entry.key,
+                                      dataSource: [
+                                        ...entry.value.map((val) {
+                                          return double.parse(val.toString());
+                                        }),
+                                      ],
+                                      borderDrawMode:
+                                          BorderDrawMode.excludeBottom,
+                                      borderWidth: 2,
+                                      xValueMapper: (data, _) => matches[_],
+                                      yValueMapper: (data, _) => data);
+                                })
+                              ])))
+                ]),
+              ]),
+              if (comparing)
+                Column(children: [
+                  Padding(
+                    padding: EdgeInsets.all(
+                      30,
+                    ),
+                    child: Row(children: [
+                      DropdownButton<int>(
+                        items: [
+                          DropdownMenuItem(
+                            child: Text('Select a Team'),
+                            value: 0,
+                          ),
+                          ...teams.map((team) => DropdownMenuItem(
+                                child: Text('Team $team'),
+                                value: teams.indexOf(team) + 1,
+                              )),
+                        ],
+                        onChanged: (team) => setState(() {
+                          secondTeam = team ?? 0;
+                        }),
+                        value: secondTeam,
+                      ),
+                    ]),
+                  ),
+                  Row(children: [
+                    AnimatedSize(
+                        curve: Curves.decelerate,
+                        alignment: Alignment(0, 0),
+                        duration: Duration(milliseconds: 500),
+                        child: Container(
+                            width: comparing ? constraints.maxWidth / 2 : 0,
+                            child: SfCartesianChart(
+                                primaryXAxis: NumericAxis(
+                                  minimum: firstMatch.toDouble(),
+                                  maximum: lastMatch.toDouble(),
+                                ),
+                                legend: Legend(
+                                    isVisible: true,
+                                    position: LegendPosition.bottom),
+                                tooltipBehavior: TooltipBehavior(
+                                  enable: true,
+                                  shared: true,
+                                ),
+                                series: [
+                                  ...secondSeriesData.entries
+                                      .toList()
+                                      .map((entry) {
+                                    return StackedAreaSeries<double, int>(
+                                        enableTooltip: true,
+                                        animationDuration: 500,
+                                        name: entry.key,
+                                        dataSource: [
+                                          ...entry.value.map((val) {
+                                            return double.parse(val.toString());
+                                          }),
+                                        ],
+                                        borderDrawMode:
+                                            BorderDrawMode.excludeBottom,
+                                        borderWidth: 2,
+                                        xValueMapper: (data, _) =>
+                                            secondMatches[_],
+                                        yValueMapper: (data, _) => data);
+                                  })
+                                ])))
+                  ]),
+                ])
+            ]);
+          }),
           Padding(
               padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
               child: BarChartWithWeights(
@@ -594,7 +872,6 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -672,7 +949,7 @@ class _MatchStatusSource extends DataGridSource {
     List<Widget> returnCells = [];
     Map<String, dynamic> matchStatus = {};
     for (Map<String, dynamic> status in statuses) {
-      if (status["key"] == cells[0].value) {
+      if (status['key'] == cells[0].value) {
         matchStatus = status;
         break;
       }

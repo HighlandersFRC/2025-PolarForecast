@@ -142,4 +142,12 @@ class ApiService {
     data = [...data];
     return data;
   }
+
+  Future<List<dynamic>> fetchEventScouting(int year, String event) async {
+    final cacheKey = '${year}_${event}_scout_entries';
+    final url = '${APIURL}/${year}/${event}/ScoutEntries';
+    var data = (await _fetchFromAPI(url, cacheKey));
+    data = [...data];
+    return data;
+  }
 }
