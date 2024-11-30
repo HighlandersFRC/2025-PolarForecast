@@ -1032,13 +1032,22 @@ class _MatchStatusSource extends DataGridSource {
               ? returnCells.add(Container(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   alignment: Alignment.center,
-                  color: matchStatus['blue_actual_score'] >
-                          matchStatus['red_actual_score']
+                  color: matchStatus['predicted'] &&
+                          matchStatus['blue_win_rp'] == 2
                       ? const Color.fromARGB(255, 0, 100, 150)
-                      : matchStatus['blue_actual_score'] <
-                              matchStatus['red_actual_score']
+                      : matchStatus['predicted'] &&
+                              matchStatus['blue_win_rp'] == 0
                           ? color
-                          : const Color.fromARGB(255, 125, 0, 150),
+                          : matchStatus['predicted'] &&
+                                  matchStatus['blue_win_rp'] == 1
+                              ? const Color.fromARGB(255, 125, 0, 150)
+                              : matchStatus['blue_actual_score'] >
+                                      matchStatus['red_actual_score']
+                                  ? const Color.fromARGB(255, 0, 100, 150)
+                                  : matchStatus['blue_actual_score'] <
+                                          matchStatus['red_actual_score']
+                                      ? color
+                                      : const Color.fromARGB(255, 125, 0, 150),
                   child: Text(
                     textScaleFactor: 1.25,
                     cell.value.toString(),
@@ -1048,13 +1057,23 @@ class _MatchStatusSource extends DataGridSource {
                   ? returnCells.add(Container(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
                       alignment: Alignment.center,
-                      color: matchStatus['blue_actual_score'] <
-                              matchStatus['red_actual_score']
+                      color: matchStatus['predicted'] &&
+                              matchStatus['red_win_rp'] == 2
                           ? const Color.fromARGB(255, 140, 10, 0)
-                          : matchStatus['blue_actual_score'] >
-                                  matchStatus['red_actual_score']
+                          : matchStatus['predicted'] &&
+                                  matchStatus['red_win_rp'] == 0
                               ? color
-                              : const Color.fromARGB(255, 125, 0, 150),
+                              : matchStatus['predicted'] &&
+                                      matchStatus['red_win_rp'] == 1
+                                  ? const Color.fromARGB(255, 125, 0, 150)
+                                  : matchStatus['red_actual_score'] >
+                                          matchStatus['blue_actual_score']
+                                      ? const Color.fromARGB(255, 140, 10, 0)
+                                      : matchStatus['red_actual_score'] <
+                                              matchStatus['blue_actual_score']
+                                          ? color
+                                          : const Color.fromARGB(
+                                              255, 125, 0, 150),
                       child: Text(
                         textScaleFactor: 1.25,
                         cell.value.toString(),
@@ -1323,11 +1342,19 @@ class _ElimsTabState extends State<_ElimsTab> {
                 value: status['predicted'] ? 'Predicted' : 'Result'),
             DataGridCell(
                 columnName: 'winner',
-                value: status['blue_actual_score'] > status['red_actual_score']
+                value: status['predicted'] && status['blue_win_rp'] == 2
                     ? 'Blue'
-                    : status['blue_actual_score'] < status['red_actual_score']
+                    : status['predicted'] && status['blue_win_rp'] == 0
                         ? 'Red'
-                        : 'Tie'),
+                        : status['predicted'] && status['blue_win_rp'] == 1
+                            ? 'Tie'
+                            : status['blue_actual_score'] >
+                                    status['red_actual_score']
+                                ? 'Blue'
+                                : status['blue_actual_score'] <
+                                        status['red_actual_score']
+                                    ? 'Red'
+                                    : 'Tie'),
           ])
     ];
   }
