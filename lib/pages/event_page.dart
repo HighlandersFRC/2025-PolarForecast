@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
@@ -316,6 +317,8 @@ class _ChartsTabState extends State<_ChartsTab> {
   int lastMatch = 1;
   int firstMatch = 0;
   bool comparing = false;
+  bool _hasAdjustedForLandscape = false;
+
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
@@ -364,6 +367,22 @@ class _ChartsTabState extends State<_ChartsTab> {
       child: Column(
         children: [
           LayoutBuilder(builder: (context, constraints) {
+            bool landscape =
+                MediaQuery.of(context).orientation == Orientation.landscape;
+
+            if (!landscape && !_hasAdjustedForLandscape) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  setState(() {
+                    comparing = false;
+                  });
+                  _hasAdjustedForLandscape = true;
+                }
+              });
+            } else if (landscape) {
+              // Reset flag if needed for landscape changes
+              _hasAdjustedForLandscape = false;
+            }
             List<dynamic> teamScoutingData = [];
             if (selectedTeam != 0)
               for (var entry in scouting) {
@@ -482,6 +501,87 @@ class _ChartsTabState extends State<_ChartsTab> {
                     .map((val) => val.$2 / secondEntries[val.$1])
               ];
             }
+            double maxY = 1;
+            if (comparing && secondTeam != 0)
+              for (var match in secondMatches) {
+                double sum = 0;
+                for (String label in seriesLabels) {
+                  sum += secondSeriesData[label]?[secondMatches.indexOf(match)];
+                }
+                maxY = max(maxY, sum + 1);
+              }
+            if (selectedTeam != 0)
+              for (var match in matches) {
+                double sum = 0;
+                for (String label in seriesLabels) {
+                  sum += seriesData[label]?[matches.indexOf(match)];
+                }
+                maxY = max(maxY, sum + 1);
+              }
+            var firstChart = SfCartesianChart(
+                primaryXAxis: NumericAxis(
+                  minimum: firstMatch.toDouble(),
+                  maximum: lastMatch.toDouble(),
+                ),
+                primaryYAxis: NumericAxis(
+                  maximum: maxY,
+                  minimum: 0,
+                ),
+                legend:
+                    Legend(isVisible: true, position: LegendPosition.bottom),
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                  shared: true,
+                ),
+                series: [
+                  ...seriesData.entries.toList().map((entry) {
+                    return StackedAreaSeries<double, int>(
+                        enableTooltip: true,
+                        animationDuration: 500,
+                        name: entry.key,
+                        dataSource: [
+                          ...entry.value.map((val) {
+                            return double.parse(val.toString());
+                          }),
+                        ],
+                        borderDrawMode: BorderDrawMode.excludeBottom,
+                        borderWidth: 2,
+                        xValueMapper: (data, _) => matches[_],
+                        yValueMapper: (data, _) => data);
+                  })
+                ]);
+            var secondChart = SfCartesianChart(
+                primaryXAxis: NumericAxis(
+                  minimum: firstMatch.toDouble(),
+                  maximum: lastMatch.toDouble(),
+                ),
+                primaryYAxis: NumericAxis(
+                  maximum: maxY,
+                  minimum: 0,
+                ),
+                legend:
+                    Legend(isVisible: true, position: LegendPosition.bottom),
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                  shared: true,
+                ),
+                series: [
+                  ...secondSeriesData.entries.toList().map((entry) {
+                    return StackedAreaSeries<double, int>(
+                        enableTooltip: true,
+                        animationDuration: 500,
+                        name: entry.key,
+                        dataSource: [
+                          ...entry.value.map((val) {
+                            return double.parse(val.toString());
+                          }),
+                        ],
+                        borderDrawMode: BorderDrawMode.excludeBottom,
+                        borderWidth: 2,
+                        xValueMapper: (data, _) => secondMatches[_],
+                        yValueMapper: (data, _) => data);
+                  })
+                ]);
             return Row(children: [
               Column(children: [
                 Padding(
@@ -505,16 +605,17 @@ class _ChartsTabState extends State<_ChartsTab> {
                       }),
                       value: selectedTeam,
                     ),
-                    Tooltip(
-                        message: 'Compare',
-                        child: IconButton(
-                            icon: comparing
-                                ? Icon(Icons.compare_arrows)
-                                : Icon(Icons.compare_arrows,
-                                    color: Colors.blue),
-                            onPressed: () => setState(() {
-                                  comparing = !comparing;
-                                })))
+                    if (landscape)
+                      Tooltip(
+                          message: 'Compare',
+                          child: IconButton(
+                              icon: comparing
+                                  ? Icon(Icons.compare_arrows)
+                                  : Icon(Icons.compare_arrows,
+                                      color: Colors.blue),
+                              onPressed: () => setState(() {
+                                    comparing = !comparing;
+                                  })))
                   ]),
                 ),
                 Row(children: [
@@ -526,36 +627,7 @@ class _ChartsTabState extends State<_ChartsTab> {
                           width: comparing
                               ? constraints.maxWidth / 2
                               : constraints.maxWidth,
-                          child: SfCartesianChart(
-                              primaryXAxis: NumericAxis(
-                                minimum: firstMatch.toDouble(),
-                                maximum: lastMatch.toDouble(),
-                              ),
-                              legend: Legend(
-                                  isVisible: true,
-                                  position: LegendPosition.bottom),
-                              tooltipBehavior: TooltipBehavior(
-                                enable: true,
-                                shared: true,
-                              ),
-                              series: [
-                                ...seriesData.entries.toList().map((entry) {
-                                  return StackedAreaSeries<double, int>(
-                                      enableTooltip: true,
-                                      animationDuration: 500,
-                                      name: entry.key,
-                                      dataSource: [
-                                        ...entry.value.map((val) {
-                                          return double.parse(val.toString());
-                                        }),
-                                      ],
-                                      borderDrawMode:
-                                          BorderDrawMode.excludeBottom,
-                                      borderWidth: 2,
-                                      xValueMapper: (data, _) => matches[_],
-                                      yValueMapper: (data, _) => data);
-                                })
-                              ])))
+                          child: firstChart))
                 ]),
               ]),
               if (comparing)
@@ -590,39 +662,7 @@ class _ChartsTabState extends State<_ChartsTab> {
                         duration: Duration(milliseconds: 500),
                         child: Container(
                             width: comparing ? constraints.maxWidth / 2 : 0,
-                            child: SfCartesianChart(
-                                primaryXAxis: NumericAxis(
-                                  minimum: firstMatch.toDouble(),
-                                  maximum: lastMatch.toDouble(),
-                                ),
-                                legend: Legend(
-                                    isVisible: true,
-                                    position: LegendPosition.bottom),
-                                tooltipBehavior: TooltipBehavior(
-                                  enable: true,
-                                  shared: true,
-                                ),
-                                series: [
-                                  ...secondSeriesData.entries
-                                      .toList()
-                                      .map((entry) {
-                                    return StackedAreaSeries<double, int>(
-                                        enableTooltip: true,
-                                        animationDuration: 500,
-                                        name: entry.key,
-                                        dataSource: [
-                                          ...entry.value.map((val) {
-                                            return double.parse(val.toString());
-                                          }),
-                                        ],
-                                        borderDrawMode:
-                                            BorderDrawMode.excludeBottom,
-                                        borderWidth: 2,
-                                        xValueMapper: (data, _) =>
-                                            secondMatches[_],
-                                        yValueMapper: (data, _) => data);
-                                  })
-                                ])))
+                            child: secondChart))
                   ]),
                 ])
             ]);
