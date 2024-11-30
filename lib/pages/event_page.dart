@@ -259,7 +259,12 @@ class _TeamDataSource extends DataGridSource {
         bool even = rowNumber % 2 == 0;
         final color = heatMap[e.columnName] != null && heatMap[e.columnName]!
             ? _getGradientColor(
-                e.value, minValues[e.columnName], maxValues[e.columnName])
+                e.value,
+                minValues[e.columnName],
+                maxValues[e.columnName],
+                e.columnName == 'rank' ||
+                    e.columnName == 'simulated_rank' ||
+                    e.columnName == 'death_rate')
             : even
                 ? Theme.of(context).primaryColor.withOpacity(0.3)
                 : Colors.black.withOpacity(0);
@@ -277,11 +282,16 @@ class _TeamDataSource extends DataGridSource {
     );
   }
 
-  Color _getGradientColor(num value, num minValue, num maxValue) {
+  Color _getGradientColor(num value, num minValue, num maxValue, bool flip) {
     double normalizedValue = (value - minValue) / (maxValue - minValue);
     normalizedValue = normalizedValue.clamp(0.0, 1.0);
-    return Color.lerp(Colors.red, Colors.green, normalizedValue)!
-        .withOpacity(0.6);
+    if (flip) {
+      return Color.lerp(Colors.green, Colors.red, normalizedValue)!
+          .withOpacity(0.6);
+    } else {
+      return Color.lerp(Colors.red, Colors.green, normalizedValue)!
+          .withOpacity(0.6);
+    }
   }
 
   double _roundToTenths(double value) {
