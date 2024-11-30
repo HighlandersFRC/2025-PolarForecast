@@ -43,61 +43,70 @@ class _EventPageState extends State<EventPage> {
       _AutosTab(widget),
     ];
     return Scaffold(
-      appBar: PolarForecastAppBar(
-        extraText: widget.tournament.display,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentTab,
-        onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),
-        items: [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.trending_up_outlined, color: theme.primaryColor),
-              activeIcon: Icon(Icons.trending_up, color: theme.primaryColor),
-              label: 'Rankings'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.stacked_bar_chart_outlined,
-                  color: theme.primaryColor),
-              activeIcon:
-                  Icon(Icons.stacked_bar_chart, color: theme.primaryColor),
-              label: 'Charts'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.remove_red_eye_outlined,
-                  color: theme.primaryColor),
-              activeIcon: Icon(Icons.remove_red_eye, color: theme.primaryColor),
-              label: 'Match Scouting'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.group_add_outlined, color: theme.primaryColor),
-              activeIcon: Icon(Icons.group_add, color: theme.primaryColor),
-              label: 'Pit Scouting'),
-          BottomNavigationBarItem(
-              icon:
-                  Icon(Icons.sports_score_outlined, color: theme.primaryColor),
-              activeIcon: Icon(Icons.sports_score, color: theme.primaryColor),
-              label: 'Quals'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.workspace_premium_outlined,
-                  color: theme.primaryColor),
-              activeIcon:
-                  Icon(Icons.workspace_premium, color: theme.primaryColor),
-              label: 'Elims'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.precision_manufacturing_outlined,
-                  color: theme.primaryColor),
-              activeIcon: Icon(Icons.precision_manufacturing,
-                  color: theme.primaryColor),
-              label: 'Autos')
-        ],
-        type: BottomNavigationBarType.shifting,
-        selectedLabelStyle: TextStyle(
-            color: theme.brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black),
-        selectedItemColor:
-            theme.brightness == Brightness.dark ? Colors.white : Colors.black,
-        showUnselectedLabels: false,
-      ),
-      body: tabs[_currentTab],
-    );
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentTab,
+          onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),
+          items: [
+            BottomNavigationBarItem(
+                icon:
+                    Icon(Icons.trending_up_outlined, color: theme.primaryColor),
+                activeIcon: Icon(Icons.trending_up, color: theme.primaryColor),
+                label: 'Rankings'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.stacked_bar_chart_outlined,
+                    color: theme.primaryColor),
+                activeIcon:
+                    Icon(Icons.stacked_bar_chart, color: theme.primaryColor),
+                label: 'Charts'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.remove_red_eye_outlined,
+                    color: theme.primaryColor),
+                activeIcon:
+                    Icon(Icons.remove_red_eye, color: theme.primaryColor),
+                label: 'Match Scouting'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.group_add_outlined, color: theme.primaryColor),
+                activeIcon: Icon(Icons.group_add, color: theme.primaryColor),
+                label: 'Pit Scouting'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.sports_score_outlined,
+                    color: theme.primaryColor),
+                activeIcon: Icon(Icons.sports_score, color: theme.primaryColor),
+                label: 'Quals'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.workspace_premium_outlined,
+                    color: theme.primaryColor),
+                activeIcon:
+                    Icon(Icons.workspace_premium, color: theme.primaryColor),
+                label: 'Elims'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.precision_manufacturing_outlined,
+                    color: theme.primaryColor),
+                activeIcon: Icon(Icons.precision_manufacturing,
+                    color: theme.primaryColor),
+                label: 'Autos')
+          ],
+          type: BottomNavigationBarType.shifting,
+          selectedLabelStyle: TextStyle(
+              color: theme.brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black),
+          selectedItemColor:
+              theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+          showUnselectedLabels: false,
+        ),
+        body: NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return [
+              PolarForecastSliverBar(
+                context: context,
+                extraText: widget.tournament.display,
+              ),
+            ];
+          },
+          // list of images for scrolling
+          body: tabs[_currentTab],
+        ));
   }
 }
 
@@ -218,8 +227,6 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -227,11 +234,8 @@ class _RankingsTabState extends State<_RankingsTab> {
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
-                height: constraints.maxHeight,
-                width: constraints.maxWidth,
-                child: InteractiveViewer(
-                  scaleEnabled: false,
-                  clipBehavior: Clip.hardEdge,
+                  height: constraints.maxHeight,
+                  width: constraints.maxWidth,
                   child: SfDataGrid(
                     allowFiltering: true,
                     allowSorting: true,
@@ -240,7 +244,7 @@ class _RankingsTabState extends State<_RankingsTab> {
                     source: _TeamDataSource(dataRows, minValues, maxValues,
                         heatMapFromKey, context, widget.tournament),
                   ),
-                ))));
+                )));
   }
 }
 
