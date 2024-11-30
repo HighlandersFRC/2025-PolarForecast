@@ -821,6 +821,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
     dataColumns = [
       GridColumn(
           columnName: 'key',
+          allowSorting: true,
           label: Container(
               alignment: Alignment.center,
               child: Text(
@@ -830,6 +831,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
               ))),
       GridColumn(
           columnName: 'pit_status',
+          allowSorting: true,
           label: Container(
               alignment: Alignment.center,
               child: Text(
@@ -839,6 +841,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
               ))),
       GridColumn(
           columnName: 'picture_status',
+          allowSorting: true,
           label: Container(
               alignment: Alignment.center,
               child: Text(
@@ -848,6 +851,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
               ))),
       GridColumn(
           columnName: 'follow_up_status',
+          allowSorting: true,
           label: Container(
               alignment: Alignment.center,
               child: Text(
@@ -856,10 +860,19 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
                 textScaleFactor: 1.25,
               ))),
     ];
+
+    statuses.sort((a, b) {
+      return int.parse(a['key']) - int.parse(b['key']);
+    });
+
+    // statuses.sort((a, b) {
+    //   return a['key'] - b['key'];
+    // });
+
     dataRows = [
       for (Map<String, dynamic> status in statuses)
         DataGridRow(cells: [
-          DataGridCell(columnName: 'key', value: status['key']),
+          DataGridCell(columnName: 'key', value: int.parse(status['key'])),
           DataGridCell(columnName: 'pit_status', value: status['pit_status']),
           DataGridCell(
               columnName: 'picture_status', value: status['picture_status']),
@@ -882,6 +895,7 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
                   scaleEnabled: false,
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
+                    allowSorting: true,
                     columns: dataColumns,
                     defaultColumnWidth: constraints.maxWidth / 4,
                     frozenColumnsCount: 0,
@@ -913,7 +927,7 @@ class _StatusSource extends DataGridSource {
               alignment: Alignment.center,
               color: color,
               child: TeamLink(
-                int.parse(cell.value),
+                cell.value,
                 tournament,
               )))
           : returnCells.add(Container(
