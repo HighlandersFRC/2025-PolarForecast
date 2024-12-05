@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 
@@ -324,6 +327,7 @@ class _PicturesTabState extends State<_PicturesTab> {
     );
   }
 }
+
 class _MatchScoutingTab extends StatefulWidget {
   final TeamPage widget;
 
@@ -334,12 +338,234 @@ class _MatchScoutingTab extends StatefulWidget {
 }
 
 class _MatchScoutingTabState extends State<_MatchScoutingTab> {
+  List<Map<String, dynamic>> scouting = [];
+  List<DataGridRow> rows = [];
+  List<GridColumn> columns = [];
+  Map<String, dynamic> statDescription = {'scoutingData': {}};
+
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    fetchData().then((_) => updateGrid());
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStats = (await apiService.fetchTeamMatchScouting(
+        int.parse(widget.widget.tournament.page.split('/')[3]),
+        widget.widget.tournament.page.split('/')[4],
+        'frc${widget.widget.number}',
+      ));
+      final fetchedDescriptions = await apiService.fetchStatDescription(
+        int.parse(widget.widget.tournament.page.split('/')[3]),
+        widget.widget.tournament.page.split('/')[4],
+      );
+      if (mounted) {
+        setState(() {
+          statDescription = fetchedDescriptions;
+          scouting = [...fetchedStats];
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  void updateGrid() {
+    setState(() {
+      columns = [];
+      for (var description in statDescription['scoutingData']) {
+        columns.add(GridColumn(
+          columnName: description['stat_key'],
+          label: Text(description['display_name']),
+        ));
+      }
+      columns.add(GridColumn(
+        columnName: 'active',
+        label: Text('Active'),
+      ));
+      rows = [];
+      for (var entry in scouting) {
+        var flattened = flatten(entry['data'], delimiter: '_');
+        flattened = {
+          ...flattened,
+          ...entry['data']['miscellaneous'],
+          'scout_name': entry['scout_info']['name'],
+        };
+        rows.add(DataGridRow(cells: [
+          ...statDescription['scoutingData'].map((stat) {
+            return DataGridCell(
+              columnName: stat['stat_key'],
+              value: flattened[stat['stat_key']] ?? entry[stat['stat_key']],
+            );
+          }),
+          DataGridCell(
+            columnName: 'active',
+            value: entry['active'],
+          ),
+        ]));
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [Text('MatchScouting')],
-      ),
+        child: isLoading
+            ? CircularProgressIndicator()
+            : LayoutBuilder(
+                builder: (context, constraints) => Container(
+                      height: constraints.maxHeight,
+                      width: constraints.maxWidth,
+                      child: SfDataGrid(
+                        allowFiltering: true,
+                        allowSorting: true,
+                        columns: columns,
+                        frozenColumnsCount: 2,
+                        columnWidthMode: ColumnWidthMode.auto,
+                        source: _MatchScoutingSource(rows, scouting),
+                      ),
+                    )));
+  }
+}
+
+class _MatchScoutingSource extends DataGridSource {
+  final List<DataGridRow> rows;
+  final List<dynamic> scoutingData;
+  _MatchScoutingSource(List<DataGridRow> this.rows, this.scoutingData);
+  @override
+  DataGridRowAdapter? buildRow(
+    DataGridRow row,
+  ) {
+    int index = rows.indexOf(row);
+    List<Widget> cells = [];
+    for (var cell in row.getCells()) {
+      if (cell.columnName == 'active') {
+        cells.add(ActivateButton(data: scoutingData[index]));
+      } else
+        cells.add(Text(
+          cell.value.toString(),
+        ));
+    }
+    return DataGridRowAdapter(cells: cells);
+  }
+}
+
+class ActivateButton extends StatefulWidget {
+  final Map<String, dynamic> data;
+
+  const ActivateButton({Key? key, required this.data}) : super(key: key);
+
+  @override
+  _ActivateButtonState createState() => _ActivateButtonState();
+}
+
+class _ActivateButtonState extends State<ActivateButton> {
+  bool activated = false;
+  String text = '';
+  String password = '';
+
+  @override
+  void initState() {
+    super.initState();
+    activated = widget.data['active'] ?? false;
+    text = activated ? 'Deactivate' : 'Activate';
+  }
+
+  void handleActivate() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    setState(() {
+      text = activated ? 'Deactivating...' : 'Activating...';
+    });
+
+    if (activated) {
+      await apiService.deactivateMatchData(
+          widget.data, password, deactivateCallback);
+    } else {
+      await apiService.activateMatchData(
+          widget.data, password, activateCallback);
+    }
+  }
+
+  void deactivateCallback(int status) {
+    if (status == 200) {
+      setState(() {
+        text = 'Activate';
+        activated = false;
+        widget.data['active'] = false;
+      });
+    } else {
+      setState(() {
+        text = 'Deactivate';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Deactivation Failed')),
+      );
+    }
+  }
+
+  void activateCallback(int status) {
+    if (status == 200) {
+      setState(() {
+        text = 'Deactivate';
+        activated = true;
+        widget.data['active'] = true;
+      });
+    } else {
+      setState(() {
+        text = 'Activate';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Activation Failed')),
+      );
+    }
+  }
+
+  void showPasswordDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter Password'),
+          content: TextField(
+            obscureText: true,
+            decoration: InputDecoration(labelText: 'Password'),
+            onChanged: (value) {
+              setState(() {
+                password = value;
+              });
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                handleActivate();
+              },
+              child: Text(text),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        showPasswordDialog(context);
+      },
+      child: Text(text),
     );
   }
 }
