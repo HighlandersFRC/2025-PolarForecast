@@ -150,4 +150,47 @@ class ApiService {
     data = [...data];
     return data;
   }
+
+  Future<List<dynamic>> fetchTeamMatchScouting(
+      int year, String event, String team) async {
+    final cacheKey = '${year}_${event}_${team}_match_scout_entries';
+    final url = '${APIURL}/${year}/${event}/${team}/ScoutEntries';
+    var data = (await _fetchFromAPI(url, cacheKey));
+    data = [...data];
+    return data;
+  }
+
+  Future<void> deactivateMatchData(Map<String, dynamic> data, String password,
+      Function(int) callback) async {
+    try {
+      final String endpoint = '$APIURL/$password/Deactivate';
+      final response = await http.put(
+        Uri.parse(endpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+
+      callback(response.statusCode);
+    } catch (e) {
+      print('Error in deactivateMatchData: $e');
+      callback(0); // Return 0 for failure
+    }
+  }
+
+  Future<void> activateMatchData(Map<String, dynamic> data, String password,
+      Function(int) callback) async {
+    try {
+      final String endpoint = '$APIURL/$password/Activate';
+      final response = await http.put(
+        Uri.parse(endpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+
+      callback(response.statusCode);
+    } catch (e) {
+      print('Error in activateMatchData: $e');
+      callback(0); // Return 0 for failure
+    }
+  }
 }

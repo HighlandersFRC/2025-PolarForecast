@@ -123,6 +123,7 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
         return false;
       }
     }
+
     return Column(
       children: [
         Text(
@@ -130,10 +131,12 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
           style: TextStyle(color: Colors.blue, fontSize: 20),
         ),
         SfCartesianChart(
-          tooltipBehavior:
-              TooltipBehavior(enable: true, shared: true, opacity: 0.8),
+          tooltipBehavior: TooltipBehavior(
+            enable: true,
+            shared: true,
+          ),
           primaryXAxis: CategoryAxis(
-            labelRotation: isMobile()?90:0,
+            labelRotation: isMobile() ? 90 : 0,
             labelIntersectAction: AxisLabelIntersectAction.multipleRows,
           ),
           legend: Legend(),
