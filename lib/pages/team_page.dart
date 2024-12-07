@@ -5,6 +5,7 @@ import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/Widgets/deaths_form.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
@@ -623,9 +624,7 @@ class _DeathsTabState extends State<_DeathsTab> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [Text('Deaths')],
-      ),
+      child: DeathsForm(widget.widget.tournament, widget.widget.number, true),
     );
   }
 }

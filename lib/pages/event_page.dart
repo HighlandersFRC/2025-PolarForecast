@@ -5,8 +5,9 @@ import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/Widgets/bar_chart_with_weights.dart';
-import 'package:scouting_app/Widgets/team_link.dart';
+import '../Widgets/bar_chart_with_weights.dart';
+import '../Widgets/death_link.dart';
+import '../Widgets/team_link.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
@@ -227,10 +228,12 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   @override
   Widget build(BuildContext context) {
+    const columnMinWidth = 95.0;
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
-
+    bool isWide = MediaQuery.of(context).size.width >=
+        dataColumns.length * columnMinWidth;
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -238,6 +241,9 @@ class _RankingsTabState extends State<_RankingsTab> {
                   width: constraints.maxWidth,
                   child: SfDataGrid(
                     allowFiltering: true,
+                    defaultColumnWidth: columnMinWidth,
+                    columnWidthMode:
+                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
                     allowSorting: true,
                     columns: dataColumns,
                     frozenColumnsCount: 2,
@@ -984,19 +990,26 @@ class _StatusSource extends DataGridSource {
                 cell.value,
                 tournament,
               )))
-          : returnCells.add(Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              alignment: Alignment.center,
-              color: color,
-              child: Text(cell.value.toString(),
-                  textScaleFactor: 1.25,
-                  style: TextStyle(
-                      color: cell.value == 'Incomplete'
-                          ? Colors.yellow
-                          : cell.value == 'Done'
-                              ? Colors.green
-                              : Colors.red)),
-            ));
+          : cell.columnName == 'follow_up_status'
+              ? returnCells.add(Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  alignment: Alignment.center,
+                  color: color,
+                  child: DeathLink(
+                      row.getCells()[0].value, tournament, cell.value)))
+              : returnCells.add(Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  alignment: Alignment.center,
+                  color: color,
+                  child: Text(cell.value.toString(),
+                      textScaleFactor: 1.25,
+                      style: TextStyle(
+                          color: cell.value == 'Incomplete'
+                              ? Colors.yellow
+                              : cell.value == 'Done'
+                                  ? Colors.green
+                                  : Colors.red)),
+                ));
     }
     return DataGridRowAdapter(
       cells: returnCells,

@@ -23,8 +23,8 @@ dependencies:
   flutter_bloc: ^8.1.6
   dio: ^5.5.0+1
   syncfusion_flutter_datagrid: ^26.2.9
-  syncfusion_flutter_charts: ^26.2.14
   flat: ^0.5.0
+  syncfusion_flutter_charts: ^26.2.14
 
 
 dev_dependencies:

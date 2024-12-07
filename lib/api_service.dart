@@ -67,7 +67,8 @@ class ApiService {
     return ifExpired();
   }
 
-  Future<dynamic> _fetchFromAPI(String url, String cacheKey) async {
+  Future<dynamic> _fetchFromAPI(String url, String cacheKey,
+      {bool? useCache}) async {
     Function() getFromAPI = () async {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -78,7 +79,10 @@ class ApiService {
         throw Exception('Failed to load tournaments');
       }
     };
-    return _getFromCache(cacheKey, getFromAPI);
+    if (useCache ?? true)
+      return _getFromCache(cacheKey, getFromAPI);
+    else
+      return getFromAPI();
   }
 
   Future<List<Tournament>> fetchTournaments() async {
@@ -191,6 +195,38 @@ class ApiService {
     } catch (e) {
       print('Error in activateMatchData: $e');
       callback(0); // Return 0 for failure
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchFollowUp(
+      String year, String event, String team) async {
+    try {
+      final storageName = '${year}${event}_${team}_deaths';
+      final endpoint = '$APIURL/$year/$event/$team/FollowUp';
+      final data = await _fetchFromAPI(endpoint, storageName, useCache: false);
+      return data;
+    } catch (e) {
+      print('Error fetching follow-up data: $e');
+      return {'deaths': []};
+    }
+  }
+
+  Future<int> postFollowUp(
+      dynamic data, String year, String event, String team) async {
+    try {
+      final endpoint = '$APIURL/$year/$event/$team/FollowUp';
+      final response = await http.post(
+        Uri.parse(endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(data),
+      );
+      final status = response.statusCode;
+      return status;
+    } catch (e) {
+      print('Error posting follow-up data: $e');
+      return 0;
     }
   }
 }
