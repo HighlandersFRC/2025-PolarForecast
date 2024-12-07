@@ -132,10 +132,11 @@ class _RankingsTabState extends State<_RankingsTab> {
   void updateGrid() {
     dataColumns = [
       GridColumn(
+          allowSorting: true,
           label: Text('#'),
           columnName: 'team_number',
           filterPopupMenuOptions: FilterPopupMenuOptions()),
-      GridColumn(label: Text('OPR'), columnName: 'OPR'),
+      GridColumn(allowSorting: true, label: Text('OPR'), columnName: 'OPR'),
     ];
     heatMapFromKey = {
       'team_number': false,
@@ -172,17 +173,20 @@ class _RankingsTabState extends State<_RankingsTab> {
       for (var column in dataColumns) {
         try {
           if (heatMapFromKey[column.columnName] != null &&
-              !(heatMapFromKey[column.columnName]!))
+              !(heatMapFromKey[column.columnName]!)) {
+            // print(column.columnName);
             cells.add(DataGridCell(
                 columnName: column.columnName,
                 value: heatMapFromKey[column.columnName]!
-                    ? (rank.data[column.columnName] as num).toStringAsFixed(2)
-                    : rank.data[column.columnName].toString()));
-          else
+                    ? int.parse((rank.data[column.columnName] as num)
+                        .toStringAsFixed(2))
+                    : int.parse(rank.data[column.columnName].toString())));
+          } else {
             cells.add(DataGridCell(
               columnName: column.columnName,
               value: rank.data[column.columnName],
             ));
+          }
         } catch (e) {
           print(e);
           cells.add(DataGridCell(columnName: column.columnName, value: ''));
@@ -268,9 +272,12 @@ class _TeamDataSource extends DataGridSource {
             : even
                 ? Theme.of(context).primaryColor.withOpacity(0.3)
                 : Colors.black.withOpacity(0);
-        if (e.columnName == 'team_number')
+        if (e.columnName == 'team_number') {
+          // print(e.columnName.runtimeType);
           return Container(
-              color: color, child: TeamLink(int.parse(e.value), tournament));
+              color: color,
+              child: TeamLink(int.parse(e.value.toString()), tournament));
+        }
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           alignment: Alignment.center,
@@ -1180,6 +1187,24 @@ class _QualsTabState extends State<_QualsTab> {
                 textScaleFactor: 1.25,
               ))),
       GridColumn(
+          columnName: 'blue_score',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Blue Score',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'red_score',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Red Score',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
           columnName: 'blue_rp',
           label: Container(
               alignment: Alignment.center,
@@ -1214,6 +1239,16 @@ class _QualsTabState extends State<_QualsTab> {
                 columnName: 'result_type',
                 value: status['predicted'] ? 'Predicted' : 'Result'),
             DataGridCell(
+                columnName: 'blue_score',
+                value: status['predicted']
+                    ? status['blue_score'].toStringAsFixed(0)
+                    : status['blue_actual_score']),
+            DataGridCell(
+                columnName: 'red_score',
+                value: status['predicted']
+                    ? status['red_score'].toStringAsFixed(0)
+                    : status['red_actual_score']),
+            DataGridCell(
                 columnName: 'blue_rp', value: status['blue_display_rp']),
             DataGridCell(columnName: 'red_rp', value: status['red_display_rp']),
           ])
@@ -1234,7 +1269,7 @@ class _QualsTabState extends State<_QualsTab> {
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
                     columns: dataColumns,
-                    defaultColumnWidth: constraints.maxWidth / 4,
+                    defaultColumnWidth: constraints.maxWidth / 6,
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
                         context, dataRows, widget.widget.tournament, statuses),

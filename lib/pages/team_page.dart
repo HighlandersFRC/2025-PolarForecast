@@ -1,16 +1,18 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class TeamPage extends StatefulWidget {
   final Tournament tournament;
-  final int number;
+  final int teamNumber;
 
-  const TeamPage(this.number, this.tournament);
+  const TeamPage(this.teamNumber, this.tournament);
 
   @override
   _TeamPageState createState() => _TeamPageState();
@@ -39,7 +41,7 @@ class _TeamPageState extends State<TeamPage> {
     ];
     return Scaffold(
       appBar: PolarForecastAppBar(
-        extraText: '${widget.number} - ${widget.tournament.display}',
+        extraText: '${widget.teamNumber} - ${widget.tournament.display}',
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
@@ -116,7 +118,7 @@ class _StatsTabState extends State<_StatsTab> {
       final fetchedStats = await apiService.fetchTeamStats(
         int.parse(widget.widget.tournament.page.split('/')[3]),
         widget.widget.tournament.page.split('/')[4],
-        'frc${widget.widget.number}',
+        'frc${widget.widget.teamNumber}',
       );
       final fetchedStatDescription = await apiService.fetchStatDescription(
         int.parse(widget.widget.tournament.page.split('/')[3]),
@@ -154,7 +156,7 @@ class _StatsTabState extends State<_StatsTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.widget.tournament.display} - Team ${widget.widget.number} Stats',
+                      '${widget.widget.tournament.display} - Team ${widget.widget.teamNumber} Stats',
                       style: TextStyle(
                           color: theme.primaryColor,
                           fontSize: 24,
@@ -213,14 +215,469 @@ class _ScheduleTab extends StatefulWidget {
   _ScheduleTabState createState() => _ScheduleTabState();
 }
 
+class _ScheduleStatusSource extends DataGridSource {
+  final BuildContext context;
+  final List<DataGridRow> rows;
+  final Tournament tournament;
+  final List<dynamic> statuses;
+  final int teamNumber;
+  _ScheduleStatusSource(BuildContext this.context, this.rows, this.tournament,
+      this.statuses, int this.teamNumber);
+
+  String getColor(Map<String, dynamic> status, int teamNumber) {
+    List blueTeams = status['blue_teams'];
+    List redTeams = status['red_teams'];
+
+    int blueTeam1 = int.parse(blueTeams[0].split('c')[1]);
+    int blueTeam2 = int.parse(blueTeams[1].split('c')[1]);
+    int blueTeam3 = int.parse(blueTeams[2].split('c')[1]);
+    int redTeam1 = int.parse(redTeams[0].split('c')[1]);
+    int redTeam2 = int.parse(redTeams[1].split('c')[1]);
+    int redTeam3 = int.parse(redTeams[2].split('c')[1]);
+
+    if (teamNumber == blueTeam1 ||
+        teamNumber == blueTeam2 ||
+        teamNumber == blueTeam3) {
+      return 'Blue';
+    } else if (teamNumber == redTeam1 ||
+        teamNumber == redTeam2 ||
+        teamNumber == redTeam3) {
+      return 'Red';
+    } else {
+      // print('Team Not In Match');
+      return 'N/A';
+    }
+  }
+
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    List<DataGridCell> cells = row.getCells();
+    List<Widget> returnCells = [];
+    Map<String, dynamic> matchStatus = {};
+
+    for (Map<String, dynamic> status in statuses) {
+      if (status['comp_level'] == 'qm') {
+        if ('Quals ' + status['match_number'].toString() == cells[0].value) {
+          matchStatus = status;
+          break;
+        }
+      } /**/ else if (status['comp_level'] == 'sf') {
+        if ('Semi-Finals ' + status['set_number'].toString() ==
+            cells[0].value) {
+          matchStatus = status;
+          break;
+        }
+      } /**/ else if (status['comp_level'] == 'f') {
+        if ('Finals ' + status['match_number'].toString() == cells[0].value) {
+          matchStatus = status;
+          break;
+        }
+      } /**/
+    }
+    for (DataGridCell cell in cells) {
+      int rowNumber = rows.indexOf(row);
+
+      bool even = rowNumber % 2 == 0;
+      final color = even
+          ? Theme.of(context).primaryColor.withOpacity(0.3)
+          : Colors.black.withOpacity(0);
+      cell.columnName == 'key'
+          ? returnCells.add(Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              alignment: Alignment.center,
+              color: color,
+              child: Text(cell.value.toString(),
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                  style: TextStyle(
+                    color: Colors.white,
+                  ))))
+          : cell.columnName == 'team_rp'
+              ? returnCells.add(Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  alignment: Alignment.center,
+                  color: getColor(matchStatus, teamNumber) == 'Red' &&
+                          matchStatus['comp_level'] == 'qm'
+                      ? Color.lerp(Colors.red, Colors.green,
+                              matchStatus['red_display_rp'] / 4)!
+                          .withOpacity(0.6)
+                      : getColor(matchStatus, teamNumber) == 'Blue' &&
+                              matchStatus['comp_level'] == 'qm'
+                          ? Color.lerp(Colors.red, Colors.green,
+                                  matchStatus['blue_display_rp'] / 4)!
+                              .withOpacity(0.6)
+                          : Colors.grey.withOpacity(0.6),
+                  child: Text(
+                    textScaleFactor: 1.25,
+                    cell.value.toString(),
+                  ),
+                ))
+              : cell.columnName == 'color'
+                  ? returnCells.add(Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      alignment: Alignment.center,
+                      color: cell.value == 'Red'
+                          ? const Color.fromARGB(255, 140, 10, 0)
+                          : cell.value == 'Blue'
+                              ? const Color.fromARGB(255, 0, 100, 150)
+                              : const Color.fromARGB(255, 125, 0, 150),
+                      child: Text(
+                        textScaleFactor: 1.25,
+                        cell.value.toString(),
+                      ),
+                    ))
+                  : cell.columnName == 'team_score'
+                      ? returnCells.add(Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          alignment: Alignment.center,
+                          color:
+                              // getColor(matchStatus, teamNumber) == 'Blue' &&
+                              //         !matchStatus['predicted'] &&
+                              //         matchStatus['blue_actual_score'] -
+                              //                 matchStatus['red_actual_score'] <=
+                              //             0
+                              //     ? Color.lerp(
+                              //             Colors.red,
+                              //             Colors.green,
+                              //             exp((matchStatus['blue_actual_score'] -
+                              //                         matchStatus[
+                              //                             'red_actual_score']) /
+                              //                     20 +
+                              //                 log(0.5) / log(e)))!
+                              //         .withOpacity(0.6)
+                              //     : color
+                              getColor(matchStatus, teamNumber) == 'Blue' &&
+                                      matchStatus['predicted']
+                                  ? matchStatus['blue_score'] >
+                                          matchStatus['red_score']
+                                      ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                                          .withOpacity(0.6)
+                                      : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
+                                          .withOpacity(0.6)
+                                  : getColor(matchStatus, teamNumber) ==
+                                              'Blue' &&
+                                          !matchStatus['predicted']
+                                      ? matchStatus['blue_actual_score'] >
+                                              matchStatus['red_actual_score']
+                                          ? Colors.green.withOpacity(0.6)
+                                          : matchStatus['blue_actual_score'] <
+                                                  matchStatus[
+                                                      'red_actual_score']
+                                              ? Colors.red.withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, 0.5)!
+                                                  .withOpacity(0.6)
+                                      : getColor(matchStatus, teamNumber) ==
+                                                  'Red' &&
+                                              matchStatus['predicted']
+                                          ? matchStatus['blue_score'] <
+                                                  matchStatus['red_score']
+                                              ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
+                                                  .withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                                                  .withOpacity(0.6)
+                                          : getColor(matchStatus, teamNumber) ==
+                                                      'Red' &&
+                                                  !matchStatus['predicted']
+                                              ? matchStatus['blue_actual_score'] <
+                                                      matchStatus['red_actual_score']
+                                                  ? Colors.green.withOpacity(0.6)
+                                                  : matchStatus['blue_actual_score'] > matchStatus['red_actual_score']
+                                                      ? Colors.red.withOpacity(0.6)
+                                                      : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6),
+                          child: Text(
+                            textScaleFactor: 1.25,
+                            cell.value.toString(),
+                          ),
+                        ))
+                      : cell.columnName == 'opponent_score'
+                          ? returnCells.add(Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              alignment: Alignment.center,
+                              color: getColor(matchStatus, teamNumber) == 'Blue' &&
+                                      matchStatus['predicted']
+                                  ? matchStatus['blue_score'] <
+                                          matchStatus['red_score']
+                                      ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
+                                          .withOpacity(0.6)
+                                      : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                                          .withOpacity(0.6)
+                                  : getColor(matchStatus, teamNumber) == 'Blue' &&
+                                          !matchStatus['predicted']
+                                      ? matchStatus['blue_actual_score'] <
+                                              matchStatus['red_actual_score']
+                                          ? Colors.green.withOpacity(0.6)
+                                          : matchStatus['blue_actual_score'] >
+                                                  matchStatus[
+                                                      'red_actual_score']
+                                              ? Colors.red.withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, 0.5)!
+                                                  .withOpacity(0.6)
+                                      : getColor(matchStatus, teamNumber) == 'Red' &&
+                                              matchStatus['predicted']
+                                          ? matchStatus['blue_score'] >
+                                                  matchStatus['red_score']
+                                              ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                                                  .withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
+                                                  .withOpacity(0.6)
+                                          : getColor(matchStatus, teamNumber) == 'Red' &&
+                                                  !matchStatus['predicted']
+                                              ? matchStatus['blue_actual_score'] >
+                                                      matchStatus['red_actual_score']
+                                                  ? Colors.green.withOpacity(0.6)
+                                                  : matchStatus['blue_actual_score'] < matchStatus['red_actual_score']
+                                                      ? Colors.red.withOpacity(0.6)
+                                                      : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6)
+                                              : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6),
+                              child: Text(
+                                textScaleFactor: 1.25,
+                                cell.value.toString(),
+                              ),
+                            ))
+                          : returnCells.add(Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              alignment: Alignment.center,
+                              color: color,
+                              child: Text(
+                                textScaleFactor: 1.25,
+                                cell.value.toString(),
+                              ),
+                            ));
+    }
+    return DataGridRowAdapter(
+      cells: returnCells,
+    );
+  }
+}
+
 class _ScheduleTabState extends State<_ScheduleTab> {
+  List<GridColumn> dataColumns = [];
+  List<DataGridRow> dataRows = [];
+  List<dynamic> statuses = [];
+  bool isLoading = true;
+  @override
+  void initState() {
+    super.initState();
+    updateGrid();
+    fetchData().then((_) => updateGrid());
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedStatus = await apiService.fetchQualMatches(
+          int.parse(widget.widget.tournament.page.split('/')[3]),
+          widget.widget.tournament.page.split('/')[4]);
+      if (mounted) {
+        setState(() {
+          statuses = fetchedStatus;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // print('Error fetching data: $e');
+      throw (e);
+    }
+  }
+
+  String getColor(Map<String, dynamic> status, int teamNumber) {
+    List blueTeams = status['blue_teams'];
+    List redTeams = status['red_teams'];
+
+    int blueTeam1 = int.parse(blueTeams[0].split('c')[1]);
+    int blueTeam2 = int.parse(blueTeams[1].split('c')[1]);
+    int blueTeam3 = int.parse(blueTeams[2].split('c')[1]);
+    int redTeam1 = int.parse(redTeams[0].split('c')[1]);
+    int redTeam2 = int.parse(redTeams[1].split('c')[1]);
+    int redTeam3 = int.parse(redTeams[2].split('c')[1]);
+
+    if (teamNumber == blueTeam1 ||
+        teamNumber == blueTeam2 ||
+        teamNumber == blueTeam3) {
+      return 'Blue';
+    } else if (teamNumber == redTeam1 ||
+        teamNumber == redTeam2 ||
+        teamNumber == redTeam3) {
+      return 'Red';
+    } else {
+      // print('Team Not In Match');
+      return 'N/A';
+    }
+  }
+
+  void updateGrid() {
+    dataColumns = [
+      GridColumn(
+          columnName: 'key',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Match',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'result_type',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Type',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'color',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Alliance',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'team_score',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Team Points',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'opponent_score',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Opponent Points',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+      GridColumn(
+          columnName: 'team_rp',
+          label: Container(
+              alignment: Alignment.center,
+              child: Text(
+                'Ranking Points',
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.25,
+              ))),
+    ];
+
+    statuses.sort((a, b) {
+      return a['match_number'] - b['match_number'];
+    });
+
+    statuses.sort((a, b) {
+      if (a['set_number'] - b['set_number'] == 0) {
+        return a['match_number'] - b['match_number'];
+      } else {
+        return a['set_number'] - b['set_number'];
+      }
+    });
+
+    statuses.sort((a, b) {
+      if (b['comp_level'].length - a['comp_level'].length != 0) {
+        return b['comp_level'].length - a['comp_level'].length;
+      } else {
+        // print(a['comp_level'] + '    ' + b['comp_level']);
+
+        if (a['comp_level'] != b['comp_level']) {
+          // print('yo');
+          return b['comp_level'] == 'sf' ? -1 : 1;
+        }
+        if (a['set_number'] - b['set_number'] == 0) {
+          return a['match_number'] - b['match_number'];
+        } else {
+          return a['set_number'] - b['set_number'];
+        }
+      }
+    });
+
+    dataRows = [
+      for (Map<String, dynamic> status in statuses)
+        if (getColor(status, widget.widget.teamNumber) != 'N/A')
+          DataGridRow(cells: [
+            DataGridCell(
+                columnName: 'key',
+                value: status['comp_level'] == 'qm'
+                    ? 'Quals ' + status['match_number'].toString()
+                    : status['comp_level'] == 'sf'
+                        ? 'Semi-Finals ' + status['set_number'].toString()
+                        : status['comp_level'] == 'f'
+                            ? 'Finals ' + status['match_number'].toString()
+                            : 'idk'),
+            DataGridCell(
+                columnName: 'result_type',
+                value: status['predicted'] ? 'Predicted' : 'Result'),
+            DataGridCell(
+                columnName: 'color',
+                value: getColor(status, widget.widget.teamNumber)),
+            DataGridCell(
+                columnName: 'team_score',
+                value: status['predicted'] &&
+                        getColor(status, widget.widget.teamNumber) == 'Blue'
+                    ? status['blue_score'].toStringAsFixed(0)
+                    : status['predicted'] &&
+                            getColor(status, widget.widget.teamNumber) == 'Red'
+                        ? status['red_score'].toStringAsFixed(0)
+                        : getColor(status, widget.widget.teamNumber) == 'Blue'
+                            ? status['blue_actual_score']
+                            : getColor(status, widget.widget.teamNumber) ==
+                                    'Red'
+                                ? status['red_actual_score']
+                                : 'Error: team not in match (line 458)'),
+            DataGridCell(
+                columnName: 'opponent_score',
+                value: status['predicted'] &&
+                        getColor(status, widget.widget.teamNumber) == 'Red'
+                    ? status['blue_score'].toStringAsFixed(0)
+                    : status['predicted'] &&
+                            getColor(status, widget.widget.teamNumber) == 'Blue'
+                        ? status['red_score'].toStringAsFixed(0)
+                        : getColor(status, widget.widget.teamNumber) == 'Red'
+                            ? status['blue_actual_score']
+                            : getColor(status, widget.widget.teamNumber) ==
+                                    'Blue'
+                                ? status['red_actual_score']
+                                : 'Error: team not in match (line 458)'),
+            DataGridCell(
+                columnName: 'team_rp',
+                value: getColor(status, widget.widget.teamNumber) == 'Blue' &&
+                        status['comp_level'] == 'qm'
+                    ? status['blue_display_rp']
+                    : getColor(status, widget.widget.teamNumber) == 'Red' &&
+                            status['comp_level'] == 'qm'
+                        ? status['red_display_rp']
+                        : 'N/A'),
+          ])
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Center(
-      child: Column(
-        children: [Text('Schedule')],
-      ),
-    );
+        child: LayoutBuilder(
+            builder: (context, constraints) => Container(
+                alignment: Alignment.center,
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                child: InteractiveViewer(
+                  scaleEnabled: false,
+                  clipBehavior: Clip.hardEdge,
+                  child: SfDataGrid(
+                    columns: dataColumns,
+                    defaultColumnWidth: constraints.maxWidth / 6,
+                    frozenColumnsCount: 0,
+                    source: _ScheduleStatusSource(
+                        context,
+                        dataRows,
+                        widget.widget.tournament,
+                        statuses,
+                        widget.widget.teamNumber),
+                  ),
+                ))));
   }
 }
 
@@ -243,7 +700,7 @@ class _PicturesTabState extends State<_PicturesTab> {
       final fetchedStats = await apiService.fetchTeamImages(
         int.parse(widget.widget.tournament.page.split('/')[3]),
         widget.widget.tournament.page.split('/')[4],
-        'frc${widget.widget.number}',
+        'frc${widget.widget.teamNumber}',
       );
       if (mounted) {
         setState(() {
@@ -324,6 +781,7 @@ class _PicturesTabState extends State<_PicturesTab> {
     );
   }
 }
+
 class _MatchScoutingTab extends StatefulWidget {
   final TeamPage widget;
 
