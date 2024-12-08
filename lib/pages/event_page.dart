@@ -232,10 +232,10 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    const columnMinWidth = 95.0;
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
+    const columnMinWidth = 95.0;
     bool isWide = MediaQuery.of(context).size.width >=
         dataColumns.length * columnMinWidth;
     return Center(
@@ -952,6 +952,9 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
 
   @override
   Widget build(BuildContext context) {
+    const columnMinWidth = 110.0;
+    bool isWide = MediaQuery.of(context).size.width >=
+        dataColumns.length * columnMinWidth;
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -964,7 +967,9 @@ class _PitScoutingTabState extends State<_PitScoutingTab> {
                   child: SfDataGrid(
                     allowSorting: true,
                     columns: dataColumns,
-                    defaultColumnWidth: constraints.maxWidth / 4,
+                    defaultColumnWidth: columnMinWidth,
+                    columnWidthMode:
+                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
                     frozenColumnsCount: 0,
                     source: _StatusSource(
                         context, dataRows, widget.widget.tournament),
@@ -1275,6 +1280,10 @@ class _QualsTabState extends State<_QualsTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    const columnMinWidth = 110.0;
+    bool isWide = MediaQuery.of(context).size.width >=
+        dataColumns.length * columnMinWidth;
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -1286,7 +1295,9 @@ class _QualsTabState extends State<_QualsTab> {
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
                     columns: dataColumns,
-                    defaultColumnWidth: constraints.maxWidth / 6,
+                    defaultColumnWidth: columnMinWidth,
+                    columnWidthMode:
+                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
                         context, dataRows, widget.widget.tournament, statuses),
@@ -1424,6 +1435,9 @@ class _ElimsTabState extends State<_ElimsTab> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    const columnMinWidth = 110.0;
+    bool isWide = MediaQuery.of(context).size.width >=
+        dataColumns.length * columnMinWidth;
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -1435,7 +1449,9 @@ class _ElimsTabState extends State<_ElimsTab> {
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
                     columns: dataColumns,
-                    defaultColumnWidth: constraints.maxWidth / 3,
+                    defaultColumnWidth: columnMinWidth,
+                    columnWidthMode:
+                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
                     frozenColumnsCount: 0,
                     source: _MatchStatusSource(
                         context, dataRows, widget.widget.tournament, statuses),

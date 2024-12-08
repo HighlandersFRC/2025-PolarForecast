@@ -10,7 +10,6 @@ import 'package:scouting_app/Widgets/deaths_form.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class TeamPage extends StatefulWidget {
   final Tournament tournament;
@@ -660,7 +659,6 @@ class _ScheduleTabState extends State<_ScheduleTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -814,7 +812,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
       final fetchedStats = (await apiService.fetchTeamMatchScouting(
         int.parse(widget.widget.tournament.page.split('/')[3]),
         widget.widget.tournament.page.split('/')[4],
-        'frc${widget.widget.number}',
+        'frc${widget.widget.teamNumber}',
       ));
       final fetchedDescriptions = await apiService.fetchStatDescription(
         int.parse(widget.widget.tournament.page.split('/')[3]),
@@ -1081,7 +1079,8 @@ class _DeathsTabState extends State<_DeathsTab> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: DeathsForm(widget.widget.tournament, widget.widget.number, true),
+      child:
+          DeathsForm(widget.widget.tournament, widget.widget.teamNumber, true),
     );
   }
 }

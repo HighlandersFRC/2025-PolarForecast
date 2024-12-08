@@ -11,19 +11,21 @@ class TeamLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return TextButton(
-      onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => TeamPage(number, tournament))),
-      child: Text(
-        '${number}',
-        textScaleFactor: 1.25,
-        style: TextStyle(
-            color: theme.primaryColor,
-            decoration: TextDecoration.underline,
-            decorationColor: theme.primaryColor),
-      ),
-    );
+    return Container(
+        constraints: BoxConstraints.expand(),
+        child: TextButton(
+          onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => TeamPage(number, tournament))),
+          child: Text(
+            '${number}',
+            textScaleFactor: 1.25,
+            style: TextStyle(
+                color: theme.primaryColor,
+                decoration: TextDecoration.underline,
+                decorationColor: theme.primaryColor),
+          ),
+        ));
   }
 }
