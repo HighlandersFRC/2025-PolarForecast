@@ -13,6 +13,8 @@ import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../models/tournament.dart';
+
 class EventPage extends StatefulWidget {
   final Tournament tournament;
 

@@ -10,6 +10,7 @@ import 'package:scouting_app/Widgets/deaths_form.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
+import '../models/tournament.dart';
 
 class TeamPage extends StatefulWidget {
   final Tournament tournament;

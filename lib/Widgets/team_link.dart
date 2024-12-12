@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../api_service.dart';
+import '../models/tournament.dart';
 import '../pages/team_page.dart';
 
 class TeamLink extends StatelessWidget {

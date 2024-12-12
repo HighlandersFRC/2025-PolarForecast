@@ -2,30 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class Tournament {
-  final String key;
-  final String display;
-  final String page;
-  final String start;
-  final String end;
-
-  Tournament(
-      {required this.key,
-      required this.display,
-      required this.page,
-      required this.start,
-      required this.end});
-
-  factory Tournament.fromJson(Map<String, dynamic> json) {
-    return Tournament(
-      key: json['key'],
-      display: json['display'],
-      page: json['page'],
-      start: json['start'],
-      end: json['end'],
-    );
-  }
-}
+import 'models/tournament.dart';
 
 class TeamStats {
   final Map<String, dynamic> data;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../api_service.dart';
+import '../models/tournament.dart';
 import '../pages/death_page.dart';
 
 class DeathLink extends StatelessWidget {
