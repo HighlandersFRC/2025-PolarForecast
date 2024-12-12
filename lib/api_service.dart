@@ -76,7 +76,6 @@ class ApiService {
   Future<List<TeamStats2024>> fetchEventRankings(int year, String event) async {
     final cacheKey = '${year}_${event}_rankings';
     final url = '${APIURL}/${year}/${event}/stats';
-    print(url);
     var data = (await _fetchFromAPI(url, cacheKey))['data'];
     data = [...data];
     data.removeAt(0);
