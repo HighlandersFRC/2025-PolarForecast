@@ -20,6 +20,7 @@ class DeathsForm extends StatefulWidget {
 class _DeathsFormState extends State<DeathsForm> {
   List<dynamic> deaths = [];
   bool formSubmitted = false;
+  bool loading = true;
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _DeathsFormState extends State<DeathsForm> {
         )
         .then((fetchedData) => setState(() {
               deaths = fetchedData['deaths'] ?? [];
+              loading = false;
             }));
   }
 
@@ -87,161 +89,178 @@ class _DeathsFormState extends State<DeathsForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.topLeft,
-        padding: EdgeInsets.all(16.0),
-        child: formSubmitted
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Submission Successful',
-                      style: TextStyle(fontSize: 24, color: Colors.green),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: handleEditForm,
-                      child: Text('Edit Form'),
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () => handleGoBack(context),
-                      child: Text('Go Back'),
-                    ),
-                  ],
-                ),
-              )
-            : SingleChildScrollView(
-                child: Column(children: [
-                ...deaths.map((death) => Card(
-                      margin: EdgeInsets.symmetric(vertical: 8.0),
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Death #${deaths.indexOf(death) + 1}',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            TextField(
-                              readOnly: true,
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.blue, width: 3)),
-                                floatingLabelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                labelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                labelText: 'Match Number',
-                                border: OutlineInputBorder(),
-                              ),
-                              style: TextStyle(color: Colors.grey),
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) => handleChange(
-                                  'match_number',
-                                  deaths.indexOf(death),
-                                  int.tryParse(value) ?? 0),
-                              controller: TextEditingController(
-                                text: death['match_number'].toString(),
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            TextField(
-                              style: widget.locked
-                                  ? TextStyle(color: Colors.grey)
-                                  : null,
-                              readOnly: widget.locked,
-                              cursorColor: Colors.blue,
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.blue, width: 3)),
-                                floatingLabelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                labelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                labelText: 'Reason for Team Death',
-                                border: OutlineInputBorder(),
-                              ),
-                              onChanged: (value) => handleChange(
-                                  'death_reason', deaths.indexOf(death), value),
-                              controller: TextEditingController(
-                                text: death['death_reason'],
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            DropdownButtonFormField<int>(
-                              decoration: InputDecoration(
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.blue, width: 3)),
-                                floatingLabelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                labelStyle: TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                focusColor: Colors.blue,
-                                labelText: 'Severity',
-                                border: OutlineInputBorder(),
-                              ),
-                              value: death['severity'],
-                              onChanged: widget.locked
-                                  ? null
-                                  : (value) => handleChange(
-                                      'severity', deaths.indexOf(death), value),
-                              items: [
-                                DropdownMenuItem(
-                                  value: 1,
-                                  child: Text(
-                                    '1 (One-time error)',
-                                    style: TextStyle(color: Colors.green),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 2,
-                                  child: Text(
-                                    '2 (Fixable before elims)',
-                                    style: TextStyle(color: Colors.yellow),
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: 3,
-                                  child: Text(
-                                    '3 (Permanently broken)',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+    return loading
+        ? Center(child: CircularProgressIndicator(color: Colors.blue))
+        : Container(
+            alignment: Alignment.topLeft,
+            padding: EdgeInsets.all(16.0),
+            child: formSubmitted
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Submission Successful',
+                          style: TextStyle(fontSize: 24, color: Colors.green),
                         ),
-                      ),
-                    )),
-                if (deaths.isNotEmpty && !widget.locked)
-                  Card(
-                      margin: EdgeInsets.symmetric(vertical: 8.0),
-                      child: TextButton(
-                        onPressed: handleSubmit,
-                        child: Row(children: [
-                          Text(
-                            'Submit  ',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                          Icon(Icons.send, color: Colors.blue)
-                        ]),
-                      )),
-              ])));
+                        SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: handleEditForm,
+                          child: Text('Edit Form'),
+                        ),
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: () => handleGoBack(context),
+                          child: Text('Go Back'),
+                        ),
+                      ],
+                    ),
+                  )
+                : SingleChildScrollView(
+                    child: (deaths.isEmpty)
+                        ? Text('No Deaths Found',
+                            style: TextStyle(fontSize: 24))
+                        : Column(children: [
+                            ...deaths.map((death) => Card(
+                                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Death #${deaths.indexOf(death) + 1}',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        TextField(
+                                          readOnly: true,
+                                          decoration: InputDecoration(
+                                            focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 3)),
+                                            floatingLabelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            labelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            labelText: 'Match Number',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          style: TextStyle(color: Colors.grey),
+                                          keyboardType: TextInputType.number,
+                                          onChanged: (value) => handleChange(
+                                              'match_number',
+                                              deaths.indexOf(death),
+                                              int.tryParse(value) ?? 0),
+                                          controller: TextEditingController(
+                                            text: death['match_number']
+                                                .toString(),
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        TextField(
+                                          style: widget.locked
+                                              ? TextStyle(color: Colors.grey)
+                                              : null,
+                                          readOnly: widget.locked,
+                                          cursorColor: Colors.blue,
+                                          decoration: InputDecoration(
+                                            focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 3)),
+                                            floatingLabelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            labelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            labelText: 'Reason for Team Death',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          onChanged: (value) => handleChange(
+                                              'death_reason',
+                                              deaths.indexOf(death),
+                                              value),
+                                          controller: TextEditingController(
+                                            text: death['death_reason'],
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        DropdownButtonFormField<int>(
+                                          decoration: InputDecoration(
+                                            focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 3)),
+                                            floatingLabelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            labelStyle: TextStyle(
+                                                color: Colors.blue,
+                                                fontWeight: FontWeight.bold),
+                                            focusColor: Colors.blue,
+                                            labelText: 'Severity',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                          value: death['severity'],
+                                          onChanged: widget.locked
+                                              ? null
+                                              : (value) => handleChange(
+                                                  'severity',
+                                                  deaths.indexOf(death),
+                                                  value),
+                                          items: [
+                                            DropdownMenuItem(
+                                              value: 1,
+                                              child: Text(
+                                                '1 (One-time error)',
+                                                style: TextStyle(
+                                                    color: Colors.green),
+                                              ),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: 2,
+                                              child: Text(
+                                                '2 (Fixable before elims)',
+                                                style: TextStyle(
+                                                    color: Colors.yellow),
+                                              ),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: 3,
+                                              child: Text(
+                                                '3 (Permanently broken)',
+                                                style: TextStyle(
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )),
+                            if (!widget.locked)
+                              Card(
+                                  margin: EdgeInsets.symmetric(vertical: 8.0),
+                                  child: TextButton(
+                                    onPressed: handleSubmit,
+                                    child: Row(children: [
+                                      Text(
+                                        'Submit  ',
+                                        style: TextStyle(color: Colors.blue),
+                                      ),
+                                      Icon(Icons.send, color: Colors.blue)
+                                    ]),
+                                  )),
+                          ])));
   }
 }

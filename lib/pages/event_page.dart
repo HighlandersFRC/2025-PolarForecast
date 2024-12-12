@@ -233,7 +233,7 @@ class _RankingsTabState extends State<_RankingsTab> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: Colors.blue));
     }
     const columnMinWidth = 95.0;
     bool isWide = MediaQuery.of(context).size.width >=
@@ -387,7 +387,7 @@ class _ChartsTabState extends State<_ChartsTab> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: Colors.blue));
     }
     return Center(
         child: SingleChildScrollView(

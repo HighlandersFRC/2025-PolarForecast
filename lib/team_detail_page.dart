@@ -17,7 +17,8 @@ class TeamDetailPage extends StatefulWidget {
   _TeamDetailPageState createState() => _TeamDetailPageState();
 }
 
-class _TeamDetailPageState extends State<TeamDetailPage> with SingleTickerProviderStateMixin {
+class _TeamDetailPageState extends State<TeamDetailPage>
+    with SingleTickerProviderStateMixin {
   late Future<List<dynamic>> _matchesFuture;
   late Future<List<String>> _imagesFuture;
   late TabController _tabController;
@@ -122,11 +123,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> with SingleTickerProvid
         future: _matchesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator(color: Colors.blue));
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
+            return Center(
+                child: Text('Error: ${snapshot.error}',
+                    style: TextStyle(color: Colors.white)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No match data available', style: TextStyle(color: Colors.white)));
+            return Center(
+                child: Text('No match data available',
+                    style: TextStyle(color: Colors.white)));
           }
 
           final matches = snapshot.data!;
@@ -147,16 +152,29 @@ class _TeamDetailPageState extends State<TeamDetailPage> with SingleTickerProvid
               scrollDirection: Axis.horizontal,
               child: DataTable(
                 columns: [
-                  DataColumn(label: Text('Match #', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Red Score', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Blue Score', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Red RPS', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Blue RPS', style: TextStyle(color: Colors.white))),
-                  DataColumn(label: Text('Team', style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('Match #',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('Red Score',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('Blue Score',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('Red RPS',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label: Text('Blue RPS',
+                          style: TextStyle(color: Colors.white))),
+                  DataColumn(
+                      label:
+                          Text('Team', style: TextStyle(color: Colors.white))),
                 ],
                 rows: matches.map((match) {
                   final redTeams = List<String>.from(match['red_teams'] ?? []);
-                  final blueTeams = List<String>.from(match['blue_teams'] ?? []);
+                  final blueTeams =
+                      List<String>.from(match['blue_teams'] ?? []);
                   final isRedTeam = redTeams.contains(widget.teamNumber);
                   final isBlueTeam = blueTeams.contains(widget.teamNumber);
 
@@ -170,12 +188,18 @@ class _TeamDetailPageState extends State<TeamDetailPage> with SingleTickerProvid
                   }
 
                   return DataRow(cells: [
-                    DataCell(Text(match['match_number']?.toString() ?? 'N/A', style: TextStyle(color: Colors.white))),
-                    DataCell(Text(_toStringFixed(match['red_actual_score']), style: TextStyle(color: Colors.white))),
-                    DataCell(Text(_toStringFixed(match['blue_actual_score']), style: TextStyle(color: Colors.white))),
-                    DataCell(Text(_toStringFixed(match['red_total_rp']), style: TextStyle(color: Colors.white))),
-                    DataCell(Text(_toStringFixed(match['blue_total_rp']), style: TextStyle(color: Colors.white))),
-                    DataCell(Text(teamPresence, style: TextStyle(color: Colors.white))),
+                    DataCell(Text(match['match_number']?.toString() ?? 'N/A',
+                        style: TextStyle(color: Colors.white))),
+                    DataCell(Text(_toStringFixed(match['red_actual_score']),
+                        style: TextStyle(color: Colors.white))),
+                    DataCell(Text(_toStringFixed(match['blue_actual_score']),
+                        style: TextStyle(color: Colors.white))),
+                    DataCell(Text(_toStringFixed(match['red_total_rp']),
+                        style: TextStyle(color: Colors.white))),
+                    DataCell(Text(_toStringFixed(match['blue_total_rp']),
+                        style: TextStyle(color: Colors.white))),
+                    DataCell(Text(teamPresence,
+                        style: TextStyle(color: Colors.white))),
                   ]);
                 }).toList(),
               ),
@@ -191,11 +215,15 @@ class _TeamDetailPageState extends State<TeamDetailPage> with SingleTickerProvid
       future: _imagesFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator(color: Colors.blue));
         } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}', style: TextStyle(color: Colors.white)));
+          return Center(
+              child: Text('Error: ${snapshot.error}',
+                  style: TextStyle(color: Colors.white)));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No images available', style: TextStyle(color: Colors.white)));
+          return Center(
+              child: Text('No images available',
+                  style: TextStyle(color: Colors.white)));
         }
 
         final images = snapshot.data!;

@@ -151,7 +151,7 @@ class _StatsTabState extends State<_StatsTab> {
     final theme = Theme.of(context);
     return Center(
       child: isLoading
-          ? CircularProgressIndicator()
+          ? CircularProgressIndicator(color: Colors.blue)
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -725,7 +725,7 @@ class _PicturesTabState extends State<_PicturesTab> {
   Widget build(BuildContext context) {
     return Center(
       child: isLoading
-          ? CircularProgressIndicator()
+          ? CircularProgressIndicator(color: Colors.blue)
           : LayoutBuilder(
               builder: (context, constraints) {
                 return GridView.builder(
@@ -871,7 +871,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
   Widget build(BuildContext context) {
     return Center(
         child: isLoading
-            ? CircularProgressIndicator()
+            ? CircularProgressIndicator(color: Colors.blue)
             : LayoutBuilder(
                 builder: (context, constraints) => Container(
                       height: constraints.maxHeight,
