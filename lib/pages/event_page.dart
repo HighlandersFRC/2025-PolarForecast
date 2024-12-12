@@ -13,6 +13,7 @@ import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../models/team_stats_2024.dart';
 import '../models/tournament.dart';
 
 class EventPage extends StatefulWidget {
@@ -124,7 +125,7 @@ class _RankingsTab extends StatefulWidget {
 }
 
 class _RankingsTabState extends State<_RankingsTab> {
-  List<TeamStats> rankings = [];
+  List<TeamStats2024> rankings = [];
   Map<String, dynamic> statDescription = {'data': []};
   bool isLoading = true;
   List<GridColumn> dataColumns = [];
@@ -172,7 +173,7 @@ class _RankingsTabState extends State<_RankingsTab> {
         maxValues[columnKey] = double.negativeInfinity;
 
         for (var rank in rankings) {
-          var value = rank.data[columnKey];
+          var value = rank.toJson()[columnKey];
           if (value < minValues[columnKey]!) minValues[columnKey] = value;
           if (value > maxValues[columnKey]!) maxValues[columnKey] = value;
         }
@@ -190,13 +191,13 @@ class _RankingsTabState extends State<_RankingsTab> {
             cells.add(DataGridCell(
                 columnName: column.columnName,
                 value: heatMapFromKey[column.columnName]!
-                    ? int.parse((rank.data[column.columnName] as num)
+                    ? int.parse((rank.toJson()[column.columnName] as num)
                         .toStringAsFixed(2))
-                    : int.parse(rank.data[column.columnName].toString())));
+                    : int.parse(rank.toJson()[column.columnName].toString())));
           } else {
             cells.add(DataGridCell(
               columnName: column.columnName,
-              value: rank.data[column.columnName],
+              value: rank.toJson()[column.columnName],
             ));
           }
         } catch (e) {
@@ -212,24 +213,24 @@ class _RankingsTabState extends State<_RankingsTab> {
 
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    try {
-      final fetchedRankings = await apiService.fetchEventRankings(
-          int.parse(widget.tournament.page.split('/')[3]),
-          widget.tournament.page.split('/')[4]);
-      final fetchedStatDescription = await apiService.fetchStatDescription(
-          int.parse(widget.tournament.page.split('/')[3]),
-          widget.tournament.page.split('/')[4]);
+    // try {
+    final fetchedRankings = await apiService.fetchEventRankings(
+        int.parse(widget.tournament.page.split('/')[3]),
+        widget.tournament.page.split('/')[4]);
+    final fetchedStatDescription = await apiService.fetchStatDescription(
+        int.parse(widget.tournament.page.split('/')[3]),
+        widget.tournament.page.split('/')[4]);
 
-      if (mounted) {
-        setState(() {
-          rankings = fetchedRankings;
-          statDescription = fetchedStatDescription;
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
+    if (mounted) {
+      setState(() {
+        rankings = fetchedRankings;
+        statDescription = fetchedStatDescription;
+        isLoading = false;
+      });
     }
+    // } catch (e) {
+    //   print('Error fetching data: $e');
+    // }
   }
 
   @override
@@ -336,7 +337,7 @@ class _ChartsTab extends StatefulWidget {
 }
 
 class _ChartsTabState extends State<_ChartsTab> {
-  List<TeamStats> rankings = [];
+  List<TeamStats2024> rankings = [];
   Map<String, dynamic> statDescription = {'data': []};
   bool isLoading = true;
   List<dynamic> scouting = [];

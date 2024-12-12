@@ -2,11 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:scouting_app/api_service.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../models/team_stats_2024.dart';
+
 class BarChartWithWeights extends StatefulWidget {
-  final List<TeamStats> data;
+  final List<TeamStats2024> data;
   final int number;
   final List<Field> startingFields;
   final String title;
@@ -38,7 +39,7 @@ class Field {
 
 class _BarChartWithWeightsState extends State<BarChartWithWeights> {
   late List<Field> fields;
-  late List<TeamStats> originalData;
+  late List<TeamStats2024> originalData;
   late List<Map<String, dynamic>> chartData;
 
   @override
@@ -47,13 +48,13 @@ class _BarChartWithWeightsState extends State<BarChartWithWeights> {
   }
 
   List<Map<String, dynamic>> _updateData(
-      List<Field> fields, List<TeamStats> originalData) {
+      List<Field> fields, List<TeamStats2024> originalData) {
     List<Map<String, dynamic>> adjustedData = originalData.map((item) {
-      final newItem = {...item.data};
+      final newItem = {...item.toJson()};
       for (var field in fields) {
         if (field.enabled) {
           newItem[field.key] =
-              (double.tryParse(item.data[field.key].toString()) ?? 0) *
+              (double.tryParse(item.toJson()[field.key].toString()) ?? 0) *
                   field.weight;
         }
       }

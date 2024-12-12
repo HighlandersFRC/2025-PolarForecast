@@ -2,22 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'models/team_stats_2024.dart';
 import 'models/tournament.dart';
-
-class TeamStats {
-  final Map<String, dynamic> data;
-  final String key;
-  final int number;
-  TeamStats({required this.data, required this.key, required this.number});
-
-  factory TeamStats.fromJson(Map<String, dynamic> json) {
-    return TeamStats(
-      data: json,
-      key: json['key'],
-      number: int.parse(json['team_number']),
-    );
-  }
-}
 
 class ApiService {
   final String APIURL;
@@ -87,13 +73,15 @@ class ApiService {
     return await _fetchFromAPI(url, cacheKey) as Map<String, dynamic>;
   }
 
-  Future<List<TeamStats>> fetchEventRankings(int year, String event) async {
+  Future<List<TeamStats2024>> fetchEventRankings(int year, String event) async {
     final cacheKey = '${year}_${event}_rankings';
     final url = '${APIURL}/${year}/${event}/stats';
+    print(url);
     var data = (await _fetchFromAPI(url, cacheKey))['data'];
     data = [...data];
     data.removeAt(0);
-    return [for (var x in data) TeamStats.fromJson(x)];
+    data = data.where((x) => x != null);
+    return [for (var x in data) TeamStats2024.fromJson(x)];
   }
 
   Future<List<dynamic>> fetchPitStatus(int year, String event) async {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Widgets/deaths_form.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
-import '../api_service.dart';
 import '../models/tournament.dart';
 
 class DeathPage extends StatefulWidget {
