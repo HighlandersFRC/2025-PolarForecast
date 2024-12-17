@@ -854,6 +854,16 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
         };
         rows.add(DataGridRow(cells: [
           ...statDescription['scoutingData'].map((stat) {
+            if (stat['stat_key'] == 'died') {
+              return DataGridCell(
+                columnName: stat['stat_key'],
+                value: flattened[stat['stat_key']] == 0
+                    ? false
+                    : flattened[stat['stat_key']] == 1
+                        ? true
+                        : flattened[stat['stat_key']] ?? stat['stat_key'],
+              );
+            }
             return DataGridCell(
               columnName: stat['stat_key'],
               value: flattened[stat['stat_key']] ?? entry[stat['stat_key']],
