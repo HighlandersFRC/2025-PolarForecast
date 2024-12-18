@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:scouting_app/models/match_details_2024.dart';
 
 import 'models/team_stats_2024.dart';
 import 'models/tournament.dart';
@@ -192,5 +193,13 @@ class ApiService {
       print('Error posting follow-up data: $e');
       return 0;
     }
+  }
+
+  Future<MatchDetails2024> getMatchDetails(
+      int year, String event, String match_key) async {
+    final cacheKey = '${year}_${event}_${match_key}_details';
+    final url = '${APIURL}/${year}/${event}/${match_key}/match_details';
+    var data = (await _fetchFromAPI(url, cacheKey));
+    return MatchDetails2024.fromJson(data);
   }
 }

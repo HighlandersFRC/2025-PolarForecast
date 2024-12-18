@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../Widgets/bar_chart_with_weights.dart';
 import '../Widgets/death_link.dart';
+import '../Widgets/match_link.dart';
 import '../Widgets/team_link.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
@@ -1059,91 +1060,87 @@ class _MatchStatusSource extends DataGridSource {
       final color = even
           ? Theme.of(context).primaryColor.withOpacity(0.3)
           : Colors.black.withOpacity(0);
-      cell.columnName == 'key'
-          ? returnCells.add(Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              alignment: Alignment.center,
-              color: color,
-              child: Text(cell.value.toString(),
-                  textAlign: TextAlign.center,
-                  textScaleFactor: 1.25,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ))))
-          : cell.columnName == 'blue_rp'
-              ? returnCells.add(Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.center,
-                  color: matchStatus['predicted'] &&
-                          matchStatus['blue_win_rp'] == 2
-                      ? const Color.fromARGB(255, 0, 100, 150)
-                      : matchStatus['predicted'] &&
-                              matchStatus['blue_win_rp'] == 0
-                          ? color
-                          : matchStatus['predicted'] &&
-                                  matchStatus['blue_win_rp'] == 1
-                              ? const Color.fromARGB(255, 125, 0, 150)
-                              : matchStatus['blue_actual_score'] >
-                                      matchStatus['red_actual_score']
-                                  ? const Color.fromARGB(255, 0, 100, 150)
-                                  : matchStatus['blue_actual_score'] <
-                                          matchStatus['red_actual_score']
-                                      ? color
-                                      : const Color.fromARGB(255, 125, 0, 150),
-                  child: Text(
-                    textScaleFactor: 1.25,
-                    cell.value.toString(),
-                  ),
-                ))
-              : cell.columnName == 'red_rp'
-                  ? returnCells.add(Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      alignment: Alignment.center,
-                      color: matchStatus['predicted'] &&
-                              matchStatus['red_win_rp'] == 2
-                          ? const Color.fromARGB(255, 140, 10, 0)
-                          : matchStatus['predicted'] &&
-                                  matchStatus['red_win_rp'] == 0
+      if (cell.columnName == 'key') {
+        String matchNumber = cell.value.toString().split(' ')[1];
+        String type = cell.value.toString().contains('Quals')
+            ? 'qm'
+            : cell.value.toString().contains('Semi')
+                ? 'sf'
+                : 'f';
+        String match_key = '${tournament.key}_$type$matchNumber';
+        returnCells.add(Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            alignment: Alignment.center,
+            color: color,
+            child: MatchLink(cell.value, match_key, tournament)));
+      } else if (cell.columnName == 'blue_rp')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: matchStatus['predicted'] && matchStatus['blue_win_rp'] == 2
+              ? const Color.fromARGB(255, 0, 100, 150)
+              : matchStatus['predicted'] && matchStatus['blue_win_rp'] == 0
+                  ? color
+                  : matchStatus['predicted'] && matchStatus['blue_win_rp'] == 1
+                      ? const Color.fromARGB(255, 125, 0, 150)
+                      : matchStatus['blue_actual_score'] >
+                              matchStatus['red_actual_score']
+                          ? const Color.fromARGB(255, 0, 100, 150)
+                          : matchStatus['blue_actual_score'] <
+                                  matchStatus['red_actual_score']
                               ? color
-                              : matchStatus['predicted'] &&
-                                      matchStatus['red_win_rp'] == 1
-                                  ? const Color.fromARGB(255, 125, 0, 150)
-                                  : matchStatus['red_actual_score'] >
-                                          matchStatus['blue_actual_score']
-                                      ? const Color.fromARGB(255, 140, 10, 0)
-                                      : matchStatus['red_actual_score'] <
-                                              matchStatus['blue_actual_score']
-                                          ? color
-                                          : const Color.fromARGB(
-                                              255, 125, 0, 150),
-                      child: Text(
-                        textScaleFactor: 1.25,
-                        cell.value.toString(),
-                      ),
-                    ))
-                  : cell.columnName == 'winner'
-                      ? returnCells.add(Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          alignment: Alignment.center,
-                          color: cell.value == 'Red'
-                              ? const Color.fromARGB(255, 140, 10, 0)
-                              : cell.value == 'Blue'
-                                  ? const Color.fromARGB(255, 0, 100, 150)
-                                  : const Color.fromARGB(255, 125, 0, 150),
-                          child: Text(
-                            textScaleFactor: 1.25,
-                            cell.value.toString(),
-                          ),
-                        ))
-                      : returnCells.add(Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          alignment: Alignment.center,
-                          color: color,
-                          child: Text(
-                            textScaleFactor: 1.25,
-                            cell.value.toString(),
-                          ),
-                        ));
+                              : const Color.fromARGB(255, 125, 0, 150),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else if (cell.columnName == 'red_rp')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: matchStatus['predicted'] && matchStatus['red_win_rp'] == 2
+              ? const Color.fromARGB(255, 140, 10, 0)
+              : matchStatus['predicted'] && matchStatus['red_win_rp'] == 0
+                  ? color
+                  : matchStatus['predicted'] && matchStatus['red_win_rp'] == 1
+                      ? const Color.fromARGB(255, 125, 0, 150)
+                      : matchStatus['red_actual_score'] >
+                              matchStatus['blue_actual_score']
+                          ? const Color.fromARGB(255, 140, 10, 0)
+                          : matchStatus['red_actual_score'] <
+                                  matchStatus['blue_actual_score']
+                              ? color
+                              : const Color.fromARGB(255, 125, 0, 150),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else if (cell.columnName == 'winner')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: cell.value == 'Red'
+              ? const Color.fromARGB(255, 140, 10, 0)
+              : cell.value == 'Blue'
+                  ? const Color.fromARGB(255, 0, 100, 150)
+                  : const Color.fromARGB(255, 125, 0, 150),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: color,
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
     }
     return DataGridRowAdapter(
       cells: returnCells,

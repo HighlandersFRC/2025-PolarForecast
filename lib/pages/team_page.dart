@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/deaths_form.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import '../Widgets/match_link.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import '../models/tournament.dart';
@@ -285,169 +286,171 @@ class _ScheduleStatusSource extends DataGridSource {
       final color = even
           ? Theme.of(context).primaryColor.withOpacity(0.3)
           : Colors.black.withOpacity(0);
-      cell.columnName == 'key'
-          ? returnCells.add(Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              alignment: Alignment.center,
-              color: color,
-              child: Text(cell.value.toString(),
-                  textAlign: TextAlign.center,
-                  textScaleFactor: 1.25,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ))))
-          : cell.columnName == 'team_rp'
-              ? returnCells.add(Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  alignment: Alignment.center,
-                  color: getColor(matchStatus, teamNumber) == 'Red' &&
-                          matchStatus['comp_level'] == 'qm'
-                      ? Color.lerp(Colors.red, Colors.green,
-                              matchStatus['red_display_rp'] / 4)!
+      if (cell.columnName == 'key') {
+        String matchNumber = cell.value.toString().split(' ')[1];
+        String type = cell.value.toString().contains('Quals')
+            ? 'qm'
+            : cell.value.toString().contains('Semi')
+                ? 'sf'
+                : 'f';
+        String match_key = '${tournament.key}_$type$matchNumber';
+        returnCells.add(Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            alignment: Alignment.center,
+            color: color,
+            child: MatchLink(cell.value, match_key, tournament)));
+      } else if (cell.columnName == 'team_rp')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: getColor(matchStatus, teamNumber) == 'Red' &&
+                  matchStatus['comp_level'] == 'qm'
+              ? Color.lerp(Colors.red, Colors.green,
+                      matchStatus['red_display_rp'] / 4)!
+                  .withOpacity(0.6)
+              : getColor(matchStatus, teamNumber) == 'Blue' &&
+                      matchStatus['comp_level'] == 'qm'
+                  ? Color.lerp(Colors.red, Colors.green,
+                          matchStatus['blue_display_rp'] / 4)!
+                      .withOpacity(0.6)
+                  : Colors.grey.withOpacity(0.6),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else if (cell.columnName == 'color')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: cell.value == 'Red'
+              ? const Color.fromARGB(255, 140, 10, 0)
+              : cell.value == 'Blue'
+                  ? const Color.fromARGB(255, 0, 100, 150)
+                  : const Color.fromARGB(255, 125, 0, 150),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else if (cell.columnName == 'team_score')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color:
+              // getColor(matchStatus, teamNumber) == 'Blue' &&
+              //         !matchStatus['predicted'] &&
+              //         matchStatus['blue_actual_score'] -
+              //                 matchStatus['red_actual_score'] <=
+              //             0
+              //     ? Color.lerp(
+              //             Colors.red,
+              //             Colors.green,
+              //             exp((matchStatus['blue_actual_score'] -
+              //                         matchStatus[
+              //                             'red_actual_score']) /
+              //                     20 +
+              //                 log(0.5) / log(e)))!
+              //         .withOpacity(0.6)
+              //     : color
+              getColor(matchStatus, teamNumber) == 'Blue' &&
+                      matchStatus['predicted']
+                  ? matchStatus['blue_score'] > matchStatus['red_score']
+                      ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
                           .withOpacity(0.6)
-                      : getColor(matchStatus, teamNumber) == 'Blue' &&
-                              matchStatus['comp_level'] == 'qm'
-                          ? Color.lerp(Colors.red, Colors.green,
-                                  matchStatus['blue_display_rp'] / 4)!
+                      : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
+                          .withOpacity(0.6)
+                  : getColor(matchStatus, teamNumber) == 'Blue' &&
+                          !matchStatus['predicted']
+                      ? matchStatus['blue_actual_score'] >
+                              matchStatus['red_actual_score']
+                          ? Colors.green.withOpacity(0.6)
+                          : matchStatus['blue_actual_score'] <
+                                  matchStatus['red_actual_score']
+                              ? Colors.red.withOpacity(0.6)
+                              : Color.lerp(Colors.red, Colors.green, 0.5)!
+                                  .withOpacity(0.6)
+                      : getColor(matchStatus, teamNumber) == 'Red' &&
+                              matchStatus['predicted']
+                          ? matchStatus['blue_score'] < matchStatus['red_score']
+                              ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
+                                  .withOpacity(0.6)
+                              : Color.lerp(
+                                      Colors.red,
+                                      Colors.green,
+                                      exp((matchStatus['blue_score'] -
+                                                  matchStatus['red_score']) /
+                                              (-20) +
+                                          log(0.5) / log(e)))!
+                                  .withOpacity(0.6)
+                          : getColor(matchStatus, teamNumber) == 'Red' &&
+                                  !matchStatus['predicted']
+                              ? matchStatus['blue_actual_score'] < matchStatus['red_actual_score']
+                                  ? Colors.green.withOpacity(0.6)
+                                  : matchStatus['blue_actual_score'] > matchStatus['red_actual_score']
+                                      ? Colors.red.withOpacity(0.6)
+                                      : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6)
+                              : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else if (cell.columnName == 'opponent_score')
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: getColor(matchStatus, teamNumber) == 'Blue' &&
+                  matchStatus['predicted']
+              ? matchStatus['blue_score'] < matchStatus['red_score']
+                  ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
+                      .withOpacity(0.6)
+                  : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                      .withOpacity(0.6)
+              : getColor(matchStatus, teamNumber) == 'Blue' &&
+                      !matchStatus['predicted']
+                  ? matchStatus['blue_actual_score'] <
+                          matchStatus['red_actual_score']
+                      ? Colors.green.withOpacity(0.6)
+                      : matchStatus['blue_actual_score'] >
+                              matchStatus['red_actual_score']
+                          ? Colors.red.withOpacity(0.6)
+                          : Color.lerp(Colors.red, Colors.green, 0.5)!
                               .withOpacity(0.6)
-                          : Colors.grey.withOpacity(0.6),
-                  child: Text(
-                    textScaleFactor: 1.25,
-                    cell.value.toString(),
-                  ),
-                ))
-              : cell.columnName == 'color'
-                  ? returnCells.add(Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      alignment: Alignment.center,
-                      color: cell.value == 'Red'
-                          ? const Color.fromARGB(255, 140, 10, 0)
-                          : cell.value == 'Blue'
-                              ? const Color.fromARGB(255, 0, 100, 150)
-                              : const Color.fromARGB(255, 125, 0, 150),
-                      child: Text(
-                        textScaleFactor: 1.25,
-                        cell.value.toString(),
-                      ),
-                    ))
-                  : cell.columnName == 'team_score'
-                      ? returnCells.add(Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          alignment: Alignment.center,
-                          color:
-                              // getColor(matchStatus, teamNumber) == 'Blue' &&
-                              //         !matchStatus['predicted'] &&
-                              //         matchStatus['blue_actual_score'] -
-                              //                 matchStatus['red_actual_score'] <=
-                              //             0
-                              //     ? Color.lerp(
-                              //             Colors.red,
-                              //             Colors.green,
-                              //             exp((matchStatus['blue_actual_score'] -
-                              //                         matchStatus[
-                              //                             'red_actual_score']) /
-                              //                     20 +
-                              //                 log(0.5) / log(e)))!
-                              //         .withOpacity(0.6)
-                              //     : color
-                              getColor(matchStatus, teamNumber) == 'Blue' &&
-                                      matchStatus['predicted']
-                                  ? matchStatus['blue_score'] >
-                                          matchStatus['red_score']
-                                      ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
-                                          .withOpacity(0.6)
-                                      : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
-                                          .withOpacity(0.6)
-                                  : getColor(matchStatus, teamNumber) ==
-                                              'Blue' &&
-                                          !matchStatus['predicted']
-                                      ? matchStatus['blue_actual_score'] >
-                                              matchStatus['red_actual_score']
-                                          ? Colors.green.withOpacity(0.6)
-                                          : matchStatus['blue_actual_score'] <
-                                                  matchStatus[
-                                                      'red_actual_score']
-                                              ? Colors.red.withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, 0.5)!
-                                                  .withOpacity(0.6)
-                                      : getColor(matchStatus, teamNumber) ==
-                                                  'Red' &&
-                                              matchStatus['predicted']
-                                          ? matchStatus['blue_score'] <
-                                                  matchStatus['red_score']
-                                              ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / 20 + log(0.5) / log(e)))!
-                                                  .withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
-                                                  .withOpacity(0.6)
-                                          : getColor(matchStatus, teamNumber) ==
-                                                      'Red' &&
-                                                  !matchStatus['predicted']
-                                              ? matchStatus['blue_actual_score'] <
-                                                      matchStatus['red_actual_score']
-                                                  ? Colors.green.withOpacity(0.6)
-                                                  : matchStatus['blue_actual_score'] > matchStatus['red_actual_score']
-                                                      ? Colors.red.withOpacity(0.6)
-                                                      : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6),
-                          child: Text(
-                            textScaleFactor: 1.25,
-                            cell.value.toString(),
-                          ),
-                        ))
-                      : cell.columnName == 'opponent_score'
-                          ? returnCells.add(Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16.0),
-                              alignment: Alignment.center,
-                              color: getColor(matchStatus, teamNumber) == 'Blue' &&
-                                      matchStatus['predicted']
-                                  ? matchStatus['blue_score'] <
-                                          matchStatus['red_score']
-                                      ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
-                                          .withOpacity(0.6)
-                                      : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
-                                          .withOpacity(0.6)
-                                  : getColor(matchStatus, teamNumber) == 'Blue' &&
-                                          !matchStatus['predicted']
-                                      ? matchStatus['blue_actual_score'] <
-                                              matchStatus['red_actual_score']
-                                          ? Colors.green.withOpacity(0.6)
-                                          : matchStatus['blue_actual_score'] >
-                                                  matchStatus[
-                                                      'red_actual_score']
-                                              ? Colors.red.withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, 0.5)!
-                                                  .withOpacity(0.6)
-                                      : getColor(matchStatus, teamNumber) == 'Red' &&
-                                              matchStatus['predicted']
-                                          ? matchStatus['blue_score'] >
-                                                  matchStatus['red_score']
-                                              ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
-                                                  .withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
-                                                  .withOpacity(0.6)
-                                          : getColor(matchStatus, teamNumber) == 'Red' &&
-                                                  !matchStatus['predicted']
-                                              ? matchStatus['blue_actual_score'] >
-                                                      matchStatus['red_actual_score']
-                                                  ? Colors.green.withOpacity(0.6)
-                                                  : matchStatus['blue_actual_score'] < matchStatus['red_actual_score']
-                                                      ? Colors.red.withOpacity(0.6)
-                                                      : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6)
-                                              : Color.lerp(Colors.red, Colors.green, 0.5)!.withOpacity(0.6),
-                              child: Text(
-                                textScaleFactor: 1.25,
-                                cell.value.toString(),
-                              ),
-                            ))
-                          : returnCells.add(Container(
-                              padding: EdgeInsets.symmetric(horizontal: 16.0),
-                              alignment: Alignment.center,
-                              color: color,
-                              child: Text(
-                                textScaleFactor: 1.25,
-                                cell.value.toString(),
-                              ),
-                            ));
+                  : getColor(matchStatus, teamNumber) == 'Red' &&
+                          matchStatus['predicted']
+                      ? matchStatus['blue_score'] > matchStatus['red_score']
+                          ? Color.lerp(Colors.green, Colors.red, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (-20) + log(0.5) / log(e)))!
+                              .withOpacity(0.6)
+                          : Color.lerp(Colors.red, Colors.green, exp((matchStatus['blue_score'] - matchStatus['red_score']) / (20) + log(0.5) / log(e)))!
+                              .withOpacity(0.6)
+                      : getColor(matchStatus, teamNumber) == 'Red' &&
+                              !matchStatus['predicted']
+                          ? matchStatus['blue_actual_score'] >
+                                  matchStatus['red_actual_score']
+                              ? Colors.green.withOpacity(0.6)
+                              : matchStatus['blue_actual_score'] <
+                                      matchStatus['red_actual_score']
+                                  ? Colors.red.withOpacity(0.6)
+                                  : Color.lerp(Colors.red, Colors.green, 0.5)!
+                                      .withOpacity(0.6)
+                          : Color.lerp(Colors.red, Colors.green, 0.5)!
+                              .withOpacity(0.6),
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
+      else
+        returnCells.add(Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          alignment: Alignment.center,
+          color: color,
+          child: Text(
+            textScaleFactor: 1.25,
+            cell.value.toString(),
+          ),
+        ));
     }
     return DataGridRowAdapter(
       cells: returnCells,
