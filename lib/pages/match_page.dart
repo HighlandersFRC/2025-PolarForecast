@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/Widgets/field_whiteboard.dart';
+import 'package:scribble/scribble.dart';
 
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
@@ -89,8 +92,8 @@ class _StatsTab extends StatefulWidget {
 class _StatsTabState extends State<_StatsTab> {
   MatchDetails2024? stats;
   Map<String, dynamic> statDescription = {'scoutingData': {}};
-
   bool isLoading = true;
+  final notifier = ScribbleNotifier();
   @override
   void initState() {
     super.initState();
@@ -117,15 +120,13 @@ class _StatsTabState extends State<_StatsTab> {
   }
 
   updateGrid() {
-    print(stats);
+    // print(stats);
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [Text('PitScouting')],
-      ),
+      child: FieldWhiteboard(title: ''),
     );
   }
 }

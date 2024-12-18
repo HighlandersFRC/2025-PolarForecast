@@ -663,6 +663,9 @@ class _ScheduleTabState extends State<_ScheduleTab> {
 
   @override
   Widget build(BuildContext context) {
+    const columnMinWidth = 175.0;
+    bool isWide = MediaQuery.of(context).size.width >=
+        dataColumns.length * columnMinWidth;
     return Center(
         child: LayoutBuilder(
             builder: (context, constraints) => Container(
@@ -674,8 +677,10 @@ class _ScheduleTabState extends State<_ScheduleTab> {
                   clipBehavior: Clip.hardEdge,
                   child: SfDataGrid(
                     columns: dataColumns,
-                    defaultColumnWidth: constraints.maxWidth / 6,
-                    frozenColumnsCount: 0,
+                    defaultColumnWidth: columnMinWidth,
+                    columnWidthMode:
+                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
+                    frozenColumnsCount: 1,
                     source: _ScheduleStatusSource(
                         context,
                         dataRows,
@@ -894,7 +899,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
                         allowFiltering: true,
                         allowSorting: true,
                         columns: columns,
-                        frozenColumnsCount: 2,
+                        frozenColumnsCount: 1,
                         columnWidthMode: ColumnWidthMode.auto,
                         source: _MatchScoutingSource(rows, scouting),
                       ),

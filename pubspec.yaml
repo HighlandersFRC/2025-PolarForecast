@@ -29,6 +29,8 @@ dependencies:
   freezed_annotation: ^2.4.4
   json_annotation: ^4.9.0
   flutter_drawing_board: ^0.9.5
+  scribble: ^0.10.0+1
+  path_provider: ^2.1.5
 
 
 dev_dependencies:
@@ -42,3 +44,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/PolarBearHead.png
+    - assets/2024GameField.png
