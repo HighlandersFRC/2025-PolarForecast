@@ -40,66 +40,69 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
+      double minWidth = 500;
+      minWidth = min(constraints.maxWidth, minWidth);
       double maxWidth = constraints.maxWidth;
       double maxHeight = constraints.maxHeight - 180;
       if (decodedImage != null) {
-        maxWidth =
-            min(decodedImage.width / decodedImage.height * maxHeight, maxWidth);
-        maxHeight =
-            min(decodedImage.height / decodedImage.width * maxWidth, maxHeight);
-        maxWidth =
-            min(decodedImage.width / decodedImage.height * maxHeight, maxWidth);
+        maxWidth = max(
+            minWidth,
+            min(decodedImage.width / decodedImage.height * maxHeight,
+                maxWidth));
+        maxHeight = decodedImage.height / decodedImage.width * maxWidth;
       }
-      return Column(
-        children: [
-          Container(
-            width: constraints.maxWidth,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Scrollbar(
-                controller: toolbarScrollController,
-                thumbVisibility: true, // Makes the scrollbar always visible
-                child: SingleChildScrollView(
+      return SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: constraints.maxWidth,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Scrollbar(
                   controller: toolbarScrollController,
-                  scrollDirection: Axis.horizontal,
-                  child: Row(children: _buildActions(context)),
+                  thumbVisibility: true, // Makes the scrollbar always visible
+                  child: SingleChildScrollView(
+                    controller: toolbarScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(children: _buildActions(context)),
+                  ),
                 ),
               ),
             ),
-          ),
-          Container(
-            width: maxWidth,
-            height: maxHeight,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset('assets/2024GameField.png'),
-                Scribble(
-                  notifier: notifier,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            width: constraints.maxWidth,
-            child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Scrollbar(
-                  controller: colorScrollController,
-                  thumbVisibility: true, // Makes the scrollbar always visible
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    controller: colorScrollController,
-                    child: Row(
-                      children: [
-                        _buildColorToolbar(context),
-                        _buildStrokeToolbar(context),
-                      ],
-                    ),
+            Container(
+              width: maxWidth,
+              height: maxHeight,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset('assets/2024GameField.png'),
+                  Scribble(
+                    notifier: notifier,
                   ),
-                )),
-          ),
-        ],
+                ],
+              ),
+            ),
+            Container(
+              width: constraints.maxWidth,
+              child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Scrollbar(
+                    controller: colorScrollController,
+                    thumbVisibility: true, // Makes the scrollbar always visible
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      controller: colorScrollController,
+                      child: Row(
+                        children: [
+                          _buildColorToolbar(context),
+                          _buildStrokeToolbar(context),
+                        ],
+                      ),
+                    ),
+                  )),
+            ),
+          ],
+        ),
       );
     });
   }
@@ -241,33 +244,30 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
           children: [
             const Text(
                 'Copy the JSON to save it. Then Paste to import it again'),
-            SizedBox(
-              height: 200,
-              child: TextField(
-                controller: jsonController,
-                maxLines: null,
-                cursorColor: Colors.blue,
-                decoration: const InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue, width: 2),
-                  ),
-                  border: OutlineInputBorder(),
-                  hintText: 'Paste JSON here...',
+            TextField(
+              controller: jsonController,
+              clipBehavior: Clip.hardEdge,
+              cursorColor: Colors.blue,
+              decoration: const InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.blue, width: 2),
                 ),
+                border: OutlineInputBorder(),
+                hintText: 'Paste JSON here...',
               ),
             ),
           ],
         ),
         actions: [
-          TextButton(
+          IconButton(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: jsonController.text));
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('JSON copied to clipboard!')),
               );
+              Navigator.of(context).pop();
             },
-            child: const Text('Copy to Clipboard',
-                style: TextStyle(color: Colors.blue)),
+            icon: const Icon(Icons.copy, color: Colors.blue),
           ),
           TextButton(
             onPressed: () {
