@@ -11,7 +11,8 @@ import 'package:scribble/scribble.dart';
 import 'package:value_notifier_tools/value_notifier_tools.dart';
 
 class FieldWhiteboard extends StatefulWidget {
-  const FieldWhiteboard({super.key});
+  final ScribbleNotifier? notifier;
+  const FieldWhiteboard({super.key, this.notifier});
 
   @override
   State<FieldWhiteboard> createState() => _FieldWhiteboardState();
@@ -26,7 +27,7 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
   void initState() {
     toolbarScrollController = ScrollController();
     colorScrollController = ScrollController();
-    notifier = ScribbleNotifier();
+    notifier = widget.notifier ?? ScribbleNotifier();
     super.initState();
     rootBundle.load('assets/2024GameField.png').then((value) {
       decodeImageFromList(value.buffer.asUint8List())
@@ -40,7 +41,7 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       double maxWidth = constraints.maxWidth;
-      double maxHeight = constraints.maxHeight - 172;
+      double maxHeight = constraints.maxHeight - 180;
       if (decodedImage != null) {
         maxWidth =
             min(decodedImage.width / decodedImage.height * maxHeight, maxWidth);
@@ -175,34 +176,6 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
         await combinedImage.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
     downloadImage(pngBytes);
-    // Show the combined image in a dialog
-    // showDialog(
-    //   context: context,
-    //   builder: (context) => AlertDialog(
-    //     title: const Text('Generated Image'),
-    //     content: SizedBox.expand(
-    //       child: FutureBuilder<Image>(
-    //         future: combinedImage.toByteData(format: ImageByteFormat.png).then(
-    //               (data) => Image.memory(data!.buffer.asUint8List()),
-    //             ),
-    //         builder: (context, snapshot) => snapshot.hasData
-    //             ? snapshot.data!
-    //             : const Center(child: CircularProgressIndicator()),
-    //       ),
-    //     ),
-    //     actions: [
-    //       if (!kIsWeb)
-    //         IconButton(
-    //           icon: Icon(Icons.download, color: Colors.blue),
-    //           onPressed: () async => downloadImage(pngBytes),
-    //         ),
-    //       TextButton(
-    //         onPressed: Navigator.of(context).pop,
-    //         child: const Text('Close'),
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 
   Future<void> downloadImage(Uint8List pngBytes) async {
@@ -276,7 +249,8 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
                 cursorColor: Colors.blue,
                 decoration: const InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.blue, width: 2)),
+                    borderSide: BorderSide(color: Colors.blue, width: 2),
+                  ),
                   border: OutlineInputBorder(),
                   hintText: 'Paste JSON here...',
                 ),
@@ -285,6 +259,16 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: jsonController.text));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('JSON copied to clipboard!')),
+              );
+            },
+            child: const Text('Copy to Clipboard',
+                style: TextStyle(color: Colors.blue)),
+          ),
           TextButton(
             onPressed: () {
               try {

@@ -15,7 +15,7 @@ class MatchPage extends StatefulWidget {
   final Tournament tournament;
   final String match_key;
   final String? display;
-  const MatchPage(this.match_key, this.tournament, {this.display});
+  MatchPage(this.match_key, this.tournament, {this.display});
 
   @override
   _MatchPageState createState() => _MatchPageState();
@@ -23,11 +23,37 @@ class MatchPage extends StatefulWidget {
 
 class _MatchPageState extends State<MatchPage> {
   int _currentTab = 0;
+  late FieldWhiteboard fieldWhiteboard;
+  late ScribbleNotifier notifier;
   bool isMobile() {
     if (kIsWeb) {
       return false;
     }
     return Platform.isAndroid || Platform.isIOS;
+  }
+
+  openPopup() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Scaffold(
+                appBar: PolarForecastAppBar(), body: fieldWhiteboard)));
+    // showDialog(
+    //     context: context,
+    //     builder: (context) => GestureDetector(
+    //         onTap: () => Navigator.of(context).pop(),
+    //         child: Padding(
+    //             padding: EdgeInsets.all(8),
+    //             child: Card(child: fieldWhiteboard))));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    notifier = ScribbleNotifier();
+    fieldWhiteboard = FieldWhiteboard(
+      notifier: notifier,
+    );
   }
 
   @override
@@ -43,6 +69,16 @@ class _MatchPageState extends State<MatchPage> {
         extraText: widget.display != null
             ? '${widget.display} - ${widget.tournament.display}'
             : widget.match_key,
+      ),
+      floatingActionButton: Tooltip(
+        message: 'Open Whiteboard',
+        child: ElevatedButton(
+            onPressed: openPopup,
+            style: ElevatedButton.styleFrom(
+              shape: CircleBorder(), // Makes the button circular
+              padding: EdgeInsets.all(20), // Adds padding to increase the size
+            ),
+            child: Icon(Icons.draw)),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentTab,
@@ -72,7 +108,9 @@ class _MatchPageState extends State<MatchPage> {
                 : Colors.black),
         selectedItemColor:
             theme.brightness == Brightness.dark ? Colors.white : Colors.black,
-        showUnselectedLabels: false,
+        unselectedItemColor:
+            theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+        showUnselectedLabels: true,
       ),
       body: tabs[_currentTab],
     );
@@ -81,7 +119,6 @@ class _MatchPageState extends State<MatchPage> {
 
 class _StatsTab extends StatefulWidget {
   final MatchPage widget;
-
   const _StatsTab(this.widget);
 
   @override
@@ -92,7 +129,6 @@ class _StatsTabState extends State<_StatsTab> {
   MatchDetails2024? stats;
   Map<String, dynamic> statDescription = {'scoutingData': {}};
   bool isLoading = true;
-  final notifier = ScribbleNotifier();
   @override
   void initState() {
     super.initState();
@@ -118,15 +154,12 @@ class _StatsTabState extends State<_StatsTab> {
     }
   }
 
-  updateGrid() {
-    // print(stats);
-  }
-  openPopup() {}
+  updateGrid() {}
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FieldWhiteboard(),
+      child: Column(children: []),
     );
   }
 }
