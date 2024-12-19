@@ -11,9 +11,7 @@ import 'package:scribble/scribble.dart';
 import 'package:value_notifier_tools/value_notifier_tools.dart';
 
 class FieldWhiteboard extends StatefulWidget {
-  const FieldWhiteboard({super.key, required this.title});
-
-  final String title;
+  const FieldWhiteboard({super.key});
 
   @override
   State<FieldWhiteboard> createState() => _FieldWhiteboardState();
@@ -21,12 +19,16 @@ class FieldWhiteboard extends StatefulWidget {
 
 class _FieldWhiteboardState extends State<FieldWhiteboard> {
   late ScribbleNotifier notifier;
+  late ScrollController toolbarScrollController;
+  late ScrollController colorScrollController;
   var decodedImage = null;
   @override
   void initState() {
+    toolbarScrollController = ScrollController();
+    colorScrollController = ScrollController();
     notifier = ScribbleNotifier();
     super.initState();
-    rootBundle.load("assets/2024GameField.png").then((value) {
+    rootBundle.load('assets/2024GameField.png').then((value) {
       decodeImageFromList(value.buffer.asUint8List())
           .then((data) => setState(() {
                 decodedImage = (data);
@@ -38,7 +40,7 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       double maxWidth = constraints.maxWidth;
-      double maxHeight = constraints.maxHeight - 164;
+      double maxHeight = constraints.maxHeight - 172;
       if (decodedImage != null) {
         maxWidth =
             min(decodedImage.width / decodedImage.height * maxHeight, maxWidth);
@@ -53,9 +55,14 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
             width: constraints.maxWidth,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(children: _buildActions(context)),
+              child: Scrollbar(
+                controller: toolbarScrollController,
+                thumbVisibility: true, // Makes the scrollbar always visible
+                child: SingleChildScrollView(
+                  controller: toolbarScrollController,
+                  scrollDirection: Axis.horizontal,
+                  child: Row(children: _buildActions(context)),
+                ),
               ),
             ),
           ),
@@ -73,20 +80,24 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
             ),
           ),
           Container(
-              width: constraints.maxWidth,
-              child: Padding(
+            width: constraints.maxWidth,
+            child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildColorToolbar(context),
-                      const VerticalDivider(width: 32),
-                      _buildStrokeToolbar(context),
-                    ],
+                child: Scrollbar(
+                  controller: colorScrollController,
+                  thumbVisibility: true, // Makes the scrollbar always visible
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    controller: colorScrollController,
+                    child: Row(
+                      children: [
+                        _buildColorToolbar(context),
+                        _buildStrokeToolbar(context),
+                      ],
+                    ),
                   ),
-                ),
-              )),
+                )),
+          ),
         ],
       );
     });
@@ -97,34 +108,34 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
       ValueListenableBuilder(
         valueListenable: notifier,
         builder: (context, value, child) => IconButton(
-          icon: child as Icon,
+          icon: Icon(Icons.undo,
+              color: notifier.canUndo ? Colors.blue : Colors.grey),
           tooltip: 'Undo',
           onPressed: notifier.canUndo ? notifier.undo : null,
         ),
-        child: const Icon(Icons.undo),
       ),
       ValueListenableBuilder(
         valueListenable: notifier,
         builder: (context, value, child) => IconButton(
-          icon: child as Icon,
+          icon: Icon(Icons.redo,
+              color: notifier.canRedo ? Colors.blue : Colors.grey),
           tooltip: 'Redo',
           onPressed: notifier.canRedo ? notifier.redo : null,
         ),
-        child: const Icon(Icons.redo),
       ),
       IconButton(
-        icon: const Icon(Icons.clear),
+        icon: const Icon(Icons.refresh, color: Colors.red),
         tooltip: 'Clear',
         onPressed: notifier.clear,
       ),
       if (!kIsWeb)
         IconButton(
-          icon: const Icon(Icons.image),
-          tooltip: 'Show PNG Image',
+          icon: const Icon(Icons.download, color: Colors.blue),
+          tooltip: 'Download Image',
           onPressed: () => _showImage(context),
         ),
       IconButton(
-        icon: const Icon(Icons.data_object),
+        icon: const Icon(Icons.data_object, color: Colors.blue),
         tooltip: 'Show JSON',
         onPressed: () => _showJson(context),
       ),
@@ -163,34 +174,35 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
     final byteData =
         await combinedImage.toByteData(format: ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
+    downloadImage(pngBytes);
     // Show the combined image in a dialog
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Generated Image'),
-        content: SizedBox.expand(
-          child: FutureBuilder<Image>(
-            future: combinedImage.toByteData(format: ImageByteFormat.png).then(
-                  (data) => Image.memory(data!.buffer.asUint8List()),
-                ),
-            builder: (context, snapshot) => snapshot.hasData
-                ? snapshot.data!
-                : const Center(child: CircularProgressIndicator()),
-          ),
-        ),
-        actions: [
-          if (!kIsWeb)
-            IconButton(
-              icon: Icon(Icons.download, color: Colors.blue),
-              onPressed: () async => downloadImage(pngBytes),
-            ),
-          TextButton(
-            onPressed: Navigator.of(context).pop,
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+    // showDialog(
+    //   context: context,
+    //   builder: (context) => AlertDialog(
+    //     title: const Text('Generated Image'),
+    //     content: SizedBox.expand(
+    //       child: FutureBuilder<Image>(
+    //         future: combinedImage.toByteData(format: ImageByteFormat.png).then(
+    //               (data) => Image.memory(data!.buffer.asUint8List()),
+    //             ),
+    //         builder: (context, snapshot) => snapshot.hasData
+    //             ? snapshot.data!
+    //             : const Center(child: CircularProgressIndicator()),
+    //       ),
+    //     ),
+    //     actions: [
+    //       if (!kIsWeb)
+    //         IconButton(
+    //           icon: Icon(Icons.download, color: Colors.blue),
+    //           onPressed: () async => downloadImage(pngBytes),
+    //         ),
+    //       TextButton(
+    //         onPressed: Navigator.of(context).pop,
+    //         child: const Text('Close'),
+    //       ),
+    //     ],
+    //   ),
+    // );
   }
 
   Future<void> downloadImage(Uint8List pngBytes) async {
@@ -221,17 +233,20 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
           title: const Text('Enter File Name'),
           content: TextField(
             onChanged: (value) => fileName = value,
-            decoration:
-                InputDecoration(hintText: 'File name (without extension)'),
+            cursorColor: Colors.blue,
+            decoration: InputDecoration(
+                hintText: 'File name (without extension)',
+                focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue, width: 2))),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(fileName),
-              child: const Text('Save'),
+              child: const Text('Save', style: TextStyle(color: Colors.blue)),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(null),
-              child: const Text('Cancel'),
+              child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
             ),
           ],
         );
@@ -240,21 +255,58 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
   }
 
   void _showJson(BuildContext context) {
+    final TextEditingController jsonController = TextEditingController(
+      text: jsonEncode(notifier.currentSketch.toJson()),
+    );
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Sketch as JSON'),
-        content: SizedBox.expand(
-          child: SelectableText(
-            jsonEncode(notifier.currentSketch.toJson()),
-            autofocus: true,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+                'Copy the JSON to save it. Then Paste to import it again'),
+            SizedBox(
+              height: 200,
+              child: TextField(
+                controller: jsonController,
+                maxLines: null,
+                cursorColor: Colors.blue,
+                decoration: const InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue, width: 2)),
+                  border: OutlineInputBorder(),
+                  hintText: 'Paste JSON here...',
+                ),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
+            onPressed: () {
+              try {
+                final pastedJson = jsonDecode(jsonController.text);
+                notifier.setSketch(sketch: Sketch.fromJson(pastedJson));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('JSON imported successfully!')),
+                );
+                Navigator.of(context).pop();
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Invalid JSON format!')),
+                );
+              }
+            },
+            child:
+                const Text('Import JSON', style: TextStyle(color: Colors.blue)),
+          ),
+          TextButton(
             onPressed: Navigator.of(context).pop,
-            child: const Text('Close'),
-          )
+            child: const Text('Close', style: TextStyle(color: Colors.blue)),
+          ),
         ],
       ),
     );
@@ -267,6 +319,7 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('Stroke Size'),
             SliderTheme(
               data: SliderThemeData(
                 thumbShape: AppSliderShape(thumbRadius: state.selectedWidth),

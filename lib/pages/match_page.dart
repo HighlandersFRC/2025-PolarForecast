@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_drawing_board/flutter_drawing_board.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/field_whiteboard.dart';
 import 'package:scribble/scribble.dart';
@@ -102,31 +101,32 @@ class _StatsTabState extends State<_StatsTab> {
 
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    // try {
-    final fetchedStats = (await apiService.getMatchDetails(
-      int.parse(widget.widget.tournament.page.split('/')[3]),
-      widget.widget.tournament.page.split('/')[4],
-      widget.widget.match_key,
-    ));
-    if (mounted) {
-      setState(() {
-        stats = fetchedStats;
-        isLoading = false;
-      });
+    try {
+      final fetchedStats = (await apiService.getMatchDetails(
+        int.parse(widget.widget.tournament.page.split('/')[3]),
+        widget.widget.tournament.page.split('/')[4],
+        widget.widget.match_key,
+      ));
+      if (mounted) {
+        setState(() {
+          stats = fetchedStats;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
-    // } catch (e) {
-    //   print('Error fetching data: $e');
-    // }
   }
 
   updateGrid() {
     // print(stats);
   }
+  openPopup() {}
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FieldWhiteboard(title: ''),
+      child: FieldWhiteboard(),
     );
   }
 }
