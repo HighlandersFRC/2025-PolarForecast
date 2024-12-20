@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/field_whiteboard.dart';
 import 'package:scribble/scribble.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
@@ -33,18 +34,10 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   openPopup() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => Scaffold(
-                appBar: PolarForecastAppBar(), body: fieldWhiteboard)));
-    // showDialog(
-    //     context: context,
-    //     builder: (context) => GestureDetector(
-    //         onTap: () => Navigator.of(context).pop(),
-    //         child: Padding(
-    //             padding: EdgeInsets.all(8),
-    //             child: Card(child: fieldWhiteboard))));
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => fieldWhiteboard,
+    );
   }
 
   @override
@@ -161,6 +154,17 @@ class _StatsTabState extends State<_StatsTab> {
     return Center(
       child: Column(children: []),
     );
+  }
+}
+
+class _StatsTableSource extends DataGridSource {
+  final List<DataGridRow> rows;
+  _StatsTableSource(this.rows);
+
+  @override
+  DataGridRowAdapter? buildRow(DataGridRow row) {
+    // TODO: implement buildRow
+    throw UnimplementedError();
   }
 }
 
