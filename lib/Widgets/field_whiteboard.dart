@@ -318,7 +318,7 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
                   erasing: (_) => Colors.transparent,
                 ),
                 value: state.selectedWidth,
-                min: notifier.widths.first,
+                min: 1,
                 max: notifier.widths.last,
                 label: state.selectedWidth.toStringAsFixed(1),
                 onChanged: (value) => notifier.setStrokeWidth(value),
