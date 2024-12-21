@@ -1066,8 +1066,9 @@ class _MatchStatusSource extends DataGridSource {
             ? 'qm'
             : cell.value.toString().contains('Semi')
                 ? 'sf'
-                : 'f';
+                : 'f1m';
         String match_key = '${tournament.key}_$type$matchNumber';
+        if (type == 'sf') match_key = '${tournament.key}_$type${matchNumber}m1';
         returnCells.add(Container(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             alignment: Alignment.center,

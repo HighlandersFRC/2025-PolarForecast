@@ -31,7 +31,7 @@ mixin _$MatchPrediction2024 {
   double get blue_teleop_points => throw _privateConstructorUsedError;
   double get blue_endgame_points => throw _privateConstructorUsedError;
   double get blue_coopertition => throw _privateConstructorUsedError;
-  int get blue_actual_score => throw _privateConstructorUsedError;
+  int? get blue_actual_score => throw _privateConstructorUsedError;
   double get blue_notes => throw _privateConstructorUsedError;
   List<String> get red_teams => throw _privateConstructorUsedError;
   double get red_score => throw _privateConstructorUsedError;
@@ -41,7 +41,7 @@ mixin _$MatchPrediction2024 {
   double get red_endgame_points => throw _privateConstructorUsedError;
   double get red_coopertition => throw _privateConstructorUsedError;
   double get red_notes => throw _privateConstructorUsedError;
-  int get red_actual_score => throw _privateConstructorUsedError;
+  int? get red_actual_score => throw _privateConstructorUsedError;
   bool get predicted => throw _privateConstructorUsedError;
   int get blue_win_rp => throw _privateConstructorUsedError;
   int get blue_ensemble_rp => throw _privateConstructorUsedError;
@@ -82,7 +82,7 @@ abstract class $MatchPrediction2024CopyWith<$Res> {
       double blue_teleop_points,
       double blue_endgame_points,
       double blue_coopertition,
-      int blue_actual_score,
+      int? blue_actual_score,
       double blue_notes,
       List<String> red_teams,
       double red_score,
@@ -92,7 +92,7 @@ abstract class $MatchPrediction2024CopyWith<$Res> {
       double red_endgame_points,
       double red_coopertition,
       double red_notes,
-      int red_actual_score,
+      int? red_actual_score,
       bool predicted,
       int blue_win_rp,
       int blue_ensemble_rp,
@@ -132,7 +132,7 @@ class _$MatchPrediction2024CopyWithImpl<$Res, $Val extends MatchPrediction2024>
     Object? blue_teleop_points = null,
     Object? blue_endgame_points = null,
     Object? blue_coopertition = null,
-    Object? blue_actual_score = null,
+    Object? blue_actual_score = freezed,
     Object? blue_notes = null,
     Object? red_teams = null,
     Object? red_score = null,
@@ -142,7 +142,7 @@ class _$MatchPrediction2024CopyWithImpl<$Res, $Val extends MatchPrediction2024>
     Object? red_endgame_points = null,
     Object? red_coopertition = null,
     Object? red_notes = null,
-    Object? red_actual_score = null,
+    Object? red_actual_score = freezed,
     Object? predicted = null,
     Object? blue_win_rp = null,
     Object? blue_ensemble_rp = null,
@@ -200,10 +200,10 @@ class _$MatchPrediction2024CopyWithImpl<$Res, $Val extends MatchPrediction2024>
           ? _value.blue_coopertition
           : blue_coopertition // ignore: cast_nullable_to_non_nullable
               as double,
-      blue_actual_score: null == blue_actual_score
+      blue_actual_score: freezed == blue_actual_score
           ? _value.blue_actual_score
           : blue_actual_score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       blue_notes: null == blue_notes
           ? _value.blue_notes
           : blue_notes // ignore: cast_nullable_to_non_nullable
@@ -240,10 +240,10 @@ class _$MatchPrediction2024CopyWithImpl<$Res, $Val extends MatchPrediction2024>
           ? _value.red_notes
           : red_notes // ignore: cast_nullable_to_non_nullable
               as double,
-      red_actual_score: null == red_actual_score
+      red_actual_score: freezed == red_actual_score
           ? _value.red_actual_score
           : red_actual_score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       predicted: null == predicted
           ? _value.predicted
           : predicted // ignore: cast_nullable_to_non_nullable
@@ -312,7 +312,7 @@ abstract class _$$MatchPrediction2024ImplCopyWith<$Res>
       double blue_teleop_points,
       double blue_endgame_points,
       double blue_coopertition,
-      int blue_actual_score,
+      int? blue_actual_score,
       double blue_notes,
       List<String> red_teams,
       double red_score,
@@ -322,7 +322,7 @@ abstract class _$$MatchPrediction2024ImplCopyWith<$Res>
       double red_endgame_points,
       double red_coopertition,
       double red_notes,
-      int red_actual_score,
+      int? red_actual_score,
       bool predicted,
       int blue_win_rp,
       int blue_ensemble_rp,
@@ -360,7 +360,7 @@ class __$$MatchPrediction2024ImplCopyWithImpl<$Res>
     Object? blue_teleop_points = null,
     Object? blue_endgame_points = null,
     Object? blue_coopertition = null,
-    Object? blue_actual_score = null,
+    Object? blue_actual_score = freezed,
     Object? blue_notes = null,
     Object? red_teams = null,
     Object? red_score = null,
@@ -370,7 +370,7 @@ class __$$MatchPrediction2024ImplCopyWithImpl<$Res>
     Object? red_endgame_points = null,
     Object? red_coopertition = null,
     Object? red_notes = null,
-    Object? red_actual_score = null,
+    Object? red_actual_score = freezed,
     Object? predicted = null,
     Object? blue_win_rp = null,
     Object? blue_ensemble_rp = null,
@@ -428,10 +428,10 @@ class __$$MatchPrediction2024ImplCopyWithImpl<$Res>
           ? _value.blue_coopertition
           : blue_coopertition // ignore: cast_nullable_to_non_nullable
               as double,
-      blue_actual_score: null == blue_actual_score
+      blue_actual_score: freezed == blue_actual_score
           ? _value.blue_actual_score
           : blue_actual_score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       blue_notes: null == blue_notes
           ? _value.blue_notes
           : blue_notes // ignore: cast_nullable_to_non_nullable
@@ -468,10 +468,10 @@ class __$$MatchPrediction2024ImplCopyWithImpl<$Res>
           ? _value.red_notes
           : red_notes // ignore: cast_nullable_to_non_nullable
               as double,
-      red_actual_score: null == red_actual_score
+      red_actual_score: freezed == red_actual_score
           ? _value.red_actual_score
           : red_actual_score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       predicted: null == predicted
           ? _value.predicted
           : predicted // ignore: cast_nullable_to_non_nullable
@@ -537,7 +537,7 @@ class _$MatchPrediction2024Impl
       required this.blue_teleop_points,
       required this.blue_endgame_points,
       required this.blue_coopertition,
-      required this.blue_actual_score,
+      this.blue_actual_score,
       required this.blue_notes,
       required final List<String> red_teams,
       required this.red_score,
@@ -547,7 +547,7 @@ class _$MatchPrediction2024Impl
       required this.red_endgame_points,
       required this.red_coopertition,
       required this.red_notes,
-      required this.red_actual_score,
+      this.red_actual_score,
       required this.predicted,
       required this.blue_win_rp,
       required this.blue_ensemble_rp,
@@ -594,7 +594,7 @@ class _$MatchPrediction2024Impl
   @override
   final double blue_coopertition;
   @override
-  final int blue_actual_score;
+  final int? blue_actual_score;
   @override
   final double blue_notes;
   final List<String> _red_teams;
@@ -620,7 +620,7 @@ class _$MatchPrediction2024Impl
   @override
   final double red_notes;
   @override
-  final int red_actual_score;
+  final int? red_actual_score;
   @override
   final bool predicted;
   @override
@@ -830,7 +830,7 @@ abstract class _MatchPrediction2024 implements MatchPrediction2024 {
       required final double blue_teleop_points,
       required final double blue_endgame_points,
       required final double blue_coopertition,
-      required final int blue_actual_score,
+      final int? blue_actual_score,
       required final double blue_notes,
       required final List<String> red_teams,
       required final double red_score,
@@ -840,7 +840,7 @@ abstract class _MatchPrediction2024 implements MatchPrediction2024 {
       required final double red_endgame_points,
       required final double red_coopertition,
       required final double red_notes,
-      required final int red_actual_score,
+      final int? red_actual_score,
       required final bool predicted,
       required final int blue_win_rp,
       required final int blue_ensemble_rp,
@@ -879,7 +879,7 @@ abstract class _MatchPrediction2024 implements MatchPrediction2024 {
   @override
   double get blue_coopertition;
   @override
-  int get blue_actual_score;
+  int? get blue_actual_score;
   @override
   double get blue_notes;
   @override
@@ -899,7 +899,7 @@ abstract class _MatchPrediction2024 implements MatchPrediction2024 {
   @override
   double get red_notes;
   @override
-  int get red_actual_score;
+  int? get red_actual_score;
   @override
   bool get predicted;
   @override

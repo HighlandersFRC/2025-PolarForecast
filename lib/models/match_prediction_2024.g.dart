@@ -22,7 +22,7 @@ _$MatchPrediction2024Impl _$$MatchPrediction2024ImplFromJson(
       blue_teleop_points: (json['blue_teleop_points'] as num).toDouble(),
       blue_endgame_points: (json['blue_endgame_points'] as num).toDouble(),
       blue_coopertition: (json['blue_coopertition'] as num).toDouble(),
-      blue_actual_score: (json['blue_actual_score'] as num).toInt(),
+      blue_actual_score: (json['blue_actual_score'] as num?)?.toInt(),
       blue_notes: (json['blue_notes'] as num).toDouble(),
       red_teams:
           (json['red_teams'] as List<dynamic>).map((e) => e as String).toList(),
@@ -33,7 +33,7 @@ _$MatchPrediction2024Impl _$$MatchPrediction2024ImplFromJson(
       red_endgame_points: (json['red_endgame_points'] as num).toDouble(),
       red_coopertition: (json['red_coopertition'] as num).toDouble(),
       red_notes: (json['red_notes'] as num).toDouble(),
-      red_actual_score: (json['red_actual_score'] as num).toInt(),
+      red_actual_score: (json['red_actual_score'] as num?)?.toInt(),
       predicted: json['predicted'] as bool,
       blue_win_rp: (json['blue_win_rp'] as num).toInt(),
       blue_ensemble_rp: (json['blue_ensemble_rp'] as num).toInt(),

@@ -40,7 +40,7 @@ class ApiService {
         _setInCache(cacheKey, data);
         return data;
       } else {
-        throw Exception('Failed to load tournaments');
+        throw Exception('Failed to load data from ' + url);
       }
     };
     if (useCache ?? true)

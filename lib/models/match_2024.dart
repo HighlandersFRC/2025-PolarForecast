@@ -10,15 +10,15 @@ part 'match_2024.g.dart';
 @freezed
 class Match2024 with _$Match2024 {
   const factory Match2024({
-    required int actual_time,
+    int? actual_time,
     required Alliances alliances,
     required String comp_level,
     required String event_key,
     required String key,
     required int match_number,
-    required int post_result_time,
+    int? post_result_time,
     required int predicted_time,
-    required ScoreBreakdowns2024 score_breakdown,
+    ScoreBreakdowns2024? score_breakdown,
     required int set_number,
     required int time,
     required List<String> videos,

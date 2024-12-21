@@ -20,15 +20,16 @@ Match2024 _$Match2024FromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Match2024 {
-  int get actual_time => throw _privateConstructorUsedError;
+  int? get actual_time => throw _privateConstructorUsedError;
   Alliances get alliances => throw _privateConstructorUsedError;
   String get comp_level => throw _privateConstructorUsedError;
   String get event_key => throw _privateConstructorUsedError;
   String get key => throw _privateConstructorUsedError;
   int get match_number => throw _privateConstructorUsedError;
-  int get post_result_time => throw _privateConstructorUsedError;
+  int? get post_result_time => throw _privateConstructorUsedError;
   int get predicted_time => throw _privateConstructorUsedError;
-  ScoreBreakdowns2024 get score_breakdown => throw _privateConstructorUsedError;
+  ScoreBreakdowns2024? get score_breakdown =>
+      throw _privateConstructorUsedError;
   int get set_number => throw _privateConstructorUsedError;
   int get time => throw _privateConstructorUsedError;
   List<String> get videos => throw _privateConstructorUsedError;
@@ -50,22 +51,22 @@ abstract class $Match2024CopyWith<$Res> {
       _$Match2024CopyWithImpl<$Res, Match2024>;
   @useResult
   $Res call(
-      {int actual_time,
+      {int? actual_time,
       Alliances alliances,
       String comp_level,
       String event_key,
       String key,
       int match_number,
-      int post_result_time,
+      int? post_result_time,
       int predicted_time,
-      ScoreBreakdowns2024 score_breakdown,
+      ScoreBreakdowns2024? score_breakdown,
       int set_number,
       int time,
       List<String> videos,
       String winning_alliance});
 
   $AlliancesCopyWith<$Res> get alliances;
-  $ScoreBreakdowns2024CopyWith<$Res> get score_breakdown;
+  $ScoreBreakdowns2024CopyWith<$Res>? get score_breakdown;
 }
 
 /// @nodoc
@@ -83,25 +84,25 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? actual_time = null,
+    Object? actual_time = freezed,
     Object? alliances = null,
     Object? comp_level = null,
     Object? event_key = null,
     Object? key = null,
     Object? match_number = null,
-    Object? post_result_time = null,
+    Object? post_result_time = freezed,
     Object? predicted_time = null,
-    Object? score_breakdown = null,
+    Object? score_breakdown = freezed,
     Object? set_number = null,
     Object? time = null,
     Object? videos = null,
     Object? winning_alliance = null,
   }) {
     return _then(_value.copyWith(
-      actual_time: null == actual_time
+      actual_time: freezed == actual_time
           ? _value.actual_time
           : actual_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       alliances: null == alliances
           ? _value.alliances
           : alliances // ignore: cast_nullable_to_non_nullable
@@ -122,18 +123,18 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
           ? _value.match_number
           : match_number // ignore: cast_nullable_to_non_nullable
               as int,
-      post_result_time: null == post_result_time
+      post_result_time: freezed == post_result_time
           ? _value.post_result_time
           : post_result_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       predicted_time: null == predicted_time
           ? _value.predicted_time
           : predicted_time // ignore: cast_nullable_to_non_nullable
               as int,
-      score_breakdown: null == score_breakdown
+      score_breakdown: freezed == score_breakdown
           ? _value.score_breakdown
           : score_breakdown // ignore: cast_nullable_to_non_nullable
-              as ScoreBreakdowns2024,
+              as ScoreBreakdowns2024?,
       set_number: null == set_number
           ? _value.set_number
           : set_number // ignore: cast_nullable_to_non_nullable
@@ -167,8 +168,12 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $ScoreBreakdowns2024CopyWith<$Res> get score_breakdown {
-    return $ScoreBreakdowns2024CopyWith<$Res>(_value.score_breakdown, (value) {
+  $ScoreBreakdowns2024CopyWith<$Res>? get score_breakdown {
+    if (_value.score_breakdown == null) {
+      return null;
+    }
+
+    return $ScoreBreakdowns2024CopyWith<$Res>(_value.score_breakdown!, (value) {
       return _then(_value.copyWith(score_breakdown: value) as $Val);
     });
   }
@@ -183,15 +188,15 @@ abstract class _$$Match2024ImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int actual_time,
+      {int? actual_time,
       Alliances alliances,
       String comp_level,
       String event_key,
       String key,
       int match_number,
-      int post_result_time,
+      int? post_result_time,
       int predicted_time,
-      ScoreBreakdowns2024 score_breakdown,
+      ScoreBreakdowns2024? score_breakdown,
       int set_number,
       int time,
       List<String> videos,
@@ -200,7 +205,7 @@ abstract class _$$Match2024ImplCopyWith<$Res>
   @override
   $AlliancesCopyWith<$Res> get alliances;
   @override
-  $ScoreBreakdowns2024CopyWith<$Res> get score_breakdown;
+  $ScoreBreakdowns2024CopyWith<$Res>? get score_breakdown;
 }
 
 /// @nodoc
@@ -216,25 +221,25 @@ class __$$Match2024ImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? actual_time = null,
+    Object? actual_time = freezed,
     Object? alliances = null,
     Object? comp_level = null,
     Object? event_key = null,
     Object? key = null,
     Object? match_number = null,
-    Object? post_result_time = null,
+    Object? post_result_time = freezed,
     Object? predicted_time = null,
-    Object? score_breakdown = null,
+    Object? score_breakdown = freezed,
     Object? set_number = null,
     Object? time = null,
     Object? videos = null,
     Object? winning_alliance = null,
   }) {
     return _then(_$Match2024Impl(
-      actual_time: null == actual_time
+      actual_time: freezed == actual_time
           ? _value.actual_time
           : actual_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       alliances: null == alliances
           ? _value.alliances
           : alliances // ignore: cast_nullable_to_non_nullable
@@ -255,18 +260,18 @@ class __$$Match2024ImplCopyWithImpl<$Res>
           ? _value.match_number
           : match_number // ignore: cast_nullable_to_non_nullable
               as int,
-      post_result_time: null == post_result_time
+      post_result_time: freezed == post_result_time
           ? _value.post_result_time
           : post_result_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       predicted_time: null == predicted_time
           ? _value.predicted_time
           : predicted_time // ignore: cast_nullable_to_non_nullable
               as int,
-      score_breakdown: null == score_breakdown
+      score_breakdown: freezed == score_breakdown
           ? _value.score_breakdown
           : score_breakdown // ignore: cast_nullable_to_non_nullable
-              as ScoreBreakdowns2024,
+              as ScoreBreakdowns2024?,
       set_number: null == set_number
           ? _value.set_number
           : set_number // ignore: cast_nullable_to_non_nullable
@@ -291,15 +296,15 @@ class __$$Match2024ImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
   const _$Match2024Impl(
-      {required this.actual_time,
+      {this.actual_time,
       required this.alliances,
       required this.comp_level,
       required this.event_key,
       required this.key,
       required this.match_number,
-      required this.post_result_time,
+      this.post_result_time,
       required this.predicted_time,
-      required this.score_breakdown,
+      this.score_breakdown,
       required this.set_number,
       required this.time,
       required final List<String> videos,
@@ -310,7 +315,7 @@ class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
       _$$Match2024ImplFromJson(json);
 
   @override
-  final int actual_time;
+  final int? actual_time;
   @override
   final Alliances alliances;
   @override
@@ -322,11 +327,11 @@ class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
   @override
   final int match_number;
   @override
-  final int post_result_time;
+  final int? post_result_time;
   @override
   final int predicted_time;
   @override
-  final ScoreBreakdowns2024 score_breakdown;
+  final ScoreBreakdowns2024? score_breakdown;
   @override
   final int set_number;
   @override
@@ -433,15 +438,15 @@ class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
 
 abstract class _Match2024 implements Match2024 {
   const factory _Match2024(
-      {required final int actual_time,
+      {final int? actual_time,
       required final Alliances alliances,
       required final String comp_level,
       required final String event_key,
       required final String key,
       required final int match_number,
-      required final int post_result_time,
+      final int? post_result_time,
       required final int predicted_time,
-      required final ScoreBreakdowns2024 score_breakdown,
+      final ScoreBreakdowns2024? score_breakdown,
       required final int set_number,
       required final int time,
       required final List<String> videos,
@@ -451,7 +456,7 @@ abstract class _Match2024 implements Match2024 {
       _$Match2024Impl.fromJson;
 
   @override
-  int get actual_time;
+  int? get actual_time;
   @override
   Alliances get alliances;
   @override
@@ -463,11 +468,11 @@ abstract class _Match2024 implements Match2024 {
   @override
   int get match_number;
   @override
-  int get post_result_time;
+  int? get post_result_time;
   @override
   int get predicted_time;
   @override
-  ScoreBreakdowns2024 get score_breakdown;
+  ScoreBreakdowns2024? get score_breakdown;
   @override
   int get set_number;
   @override

@@ -8,16 +8,18 @@ part of 'match_2024.dart';
 
 _$Match2024Impl _$$Match2024ImplFromJson(Map<String, dynamic> json) =>
     _$Match2024Impl(
-      actual_time: (json['actual_time'] as num).toInt(),
+      actual_time: (json['actual_time'] as num?)?.toInt(),
       alliances: Alliances.fromJson(json['alliances'] as Map<String, dynamic>),
       comp_level: json['comp_level'] as String,
       event_key: json['event_key'] as String,
       key: json['key'] as String,
       match_number: (json['match_number'] as num).toInt(),
-      post_result_time: (json['post_result_time'] as num).toInt(),
+      post_result_time: (json['post_result_time'] as num?)?.toInt(),
       predicted_time: (json['predicted_time'] as num).toInt(),
-      score_breakdown: ScoreBreakdowns2024.fromJson(
-          json['score_breakdown'] as Map<String, dynamic>),
+      score_breakdown: json['score_breakdown'] == null
+          ? null
+          : ScoreBreakdowns2024.fromJson(
+              json['score_breakdown'] as Map<String, dynamic>),
       set_number: (json['set_number'] as num).toInt(),
       time: (json['time'] as num).toInt(),
       videos:
