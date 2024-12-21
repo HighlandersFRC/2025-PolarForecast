@@ -69,19 +69,21 @@ class _FieldWhiteboardState extends State<FieldWhiteboard> {
                 ),
               ),
             ),
-            Container(
-              width: maxWidth,
-              height: maxHeight,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.asset('assets/2024GameField.png'),
-                  Scribble(
-                    notifier: notifier,
+            decodedImage == null
+                ? Image.asset('assets/2024GameField.png')
+                : Container(
+                    width: maxWidth,
+                    height: maxHeight,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset('assets/2024GameField.png'),
+                        Scribble(
+                          notifier: notifier,
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
             Container(
               width: constraints.maxWidth,
               child: Padding(
