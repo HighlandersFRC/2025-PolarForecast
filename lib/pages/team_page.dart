@@ -37,8 +37,8 @@ class _TeamPageState extends State<TeamPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final List<Widget> tabs = [
-      _ScheduleTab(widget),
       _StatsTab(widget),
+      _ScheduleTab(widget),
       _PicturesTab(widget),
       _MatchScoutingTab(widget),
       _PitScoutingTab(widget),
@@ -54,13 +54,13 @@ class _TeamPageState extends State<TeamPage> {
         onTap: (newTabIdx) => setState(() => _currentTab = newTabIdx),
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.event_note_outlined, color: theme.primaryColor),
-              activeIcon: Icon(Icons.event_note, color: theme.primaryColor),
-              label: 'Schedule'),
-          BottomNavigationBarItem(
               icon: Icon(Icons.storage_outlined, color: theme.primaryColor),
               activeIcon: Icon(Icons.storage, color: theme.primaryColor),
               label: 'Stats'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.event_note_outlined, color: theme.primaryColor),
+              activeIcon: Icon(Icons.event_note, color: theme.primaryColor),
+              label: 'Schedule'),
           BottomNavigationBarItem(
               icon: Icon(Icons.photo_outlined, color: theme.primaryColor),
               activeIcon: Icon(Icons.photo, color: theme.primaryColor),
@@ -858,7 +858,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
 
       rows = [];
       for (var entry in scouting) {
-        var flattened = flatten(entry.data.toJson(), delimiter: '_');
+        var flattened = flatten(entry.toJson()['data'], delimiter: '_');
         flattened = {
           ...flattened,
           ...entry.data.miscellaneous.toJson(),

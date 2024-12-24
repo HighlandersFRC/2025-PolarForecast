@@ -30,14 +30,14 @@ _$Match2024Impl _$$Match2024ImplFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$$Match2024ImplToJson(_$Match2024Impl instance) =>
     <String, dynamic>{
       'actual_time': instance.actual_time,
-      'alliances': instance.alliances,
+      'alliances': instance.alliances.toJson(),
       'comp_level': instance.comp_level,
       'event_key': instance.event_key,
       'key': instance.key,
       'match_number': instance.match_number,
       'post_result_time': instance.post_result_time,
       'predicted_time': instance.predicted_time,
-      'score_breakdown': instance.score_breakdown,
+      'score_breakdown': instance.score_breakdown?.toJson(),
       'set_number': instance.set_number,
       'time': instance.time,
       'videos': instance.videos,

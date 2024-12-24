@@ -16,6 +16,6 @@ _$ScoreBreakdowns2024Impl _$$ScoreBreakdowns2024ImplFromJson(
 Map<String, dynamic> _$$ScoreBreakdowns2024ImplToJson(
         _$ScoreBreakdowns2024Impl instance) =>
     <String, dynamic>{
-      'red': instance.red,
-      'blue': instance.blue,
+      'red': instance.red.toJson(),
+      'blue': instance.blue.toJson(),
     };

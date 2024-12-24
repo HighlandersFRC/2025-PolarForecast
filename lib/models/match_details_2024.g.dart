@@ -23,8 +23,8 @@ _$MatchDetails2024Impl _$$MatchDetails2024ImplFromJson(
 Map<String, dynamic> _$$MatchDetails2024ImplToJson(
         _$MatchDetails2024Impl instance) =>
     <String, dynamic>{
-      'match': instance.match,
-      'prediction': instance.prediction,
-      'red_teams': instance.red_teams,
-      'blue_teams': instance.blue_teams,
+      'match': instance.match.toJson(),
+      'prediction': instance.prediction.toJson(),
+      'red_teams': instance.red_teams.map((e) => e.toJson()).toList(),
+      'blue_teams': instance.blue_teams.map((e) => e.toJson()).toList(),
     };

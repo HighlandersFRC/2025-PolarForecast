@@ -14,6 +14,6 @@ _$AlliancesImpl _$$AlliancesImplFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$$AlliancesImplToJson(_$AlliancesImpl instance) =>
     <String, dynamic>{
-      'red': instance.red,
-      'blue': instance.blue,
+      'red': instance.red.toJson(),
+      'blue': instance.blue.toJson(),
     };
