@@ -309,12 +309,13 @@ class _TeamDataSource extends DataGridSource {
   Color _getGradientColor(num value, num minValue, num maxValue, bool flip) {
     double normalizedValue = (value - minValue) / (maxValue - minValue);
     normalizedValue = normalizedValue.clamp(0.0, 1.0);
-    if (flip) {
-      return Color.lerp(Colors.green, Colors.red, normalizedValue)!
-          .withOpacity(0.6);
+    if (flip) normalizedValue = 1 - normalizedValue;
+    if (normalizedValue > 0.5) {
+      return Color.lerp(Colors.yellow, Colors.green, normalizedValue)!
+          .withAlpha(200);
     } else {
-      return Color.lerp(Colors.red, Colors.green, normalizedValue)!
-          .withOpacity(0.6);
+      return Color.lerp(Colors.red, Colors.yellow, normalizedValue)!
+          .withAlpha(200);
     }
   }
 
