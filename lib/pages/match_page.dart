@@ -7,9 +7,11 @@ import 'package:scouting_app/Widgets/field_whiteboard.dart';
 import 'package:scribble/scribble.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../Widgets/auto_display_2024.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import '../models/match_details_2024.dart';
+import '../models/match_scouting_2024.dart';
 import '../models/tournament.dart';
 
 class MatchPage extends StatefulWidget {
@@ -178,13 +180,143 @@ class _RedTab extends StatefulWidget {
 }
 
 class _RedTabState extends State<_RedTab> {
+  bool isLoading = true, r1Loading = true, r2Loading = true, r3Loading = true;
+  MatchDetails2024? match;
+  List<MatchScouting2024> r1scouting = [];
+  List<MatchScouting2024> r2scouting = [];
+  List<MatchScouting2024> r3scouting = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  fetchData() {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    apiService
+        .getMatchDetails(
+      int.parse(widget.widget.tournament.page.split('/')[3]),
+      widget.widget.tournament.page.split('/')[4],
+      widget.widget.match_key,
+    )
+        .then((_match) {
+      if (mounted) {
+        setState(() {
+          match = _match;
+          isLoading = false;
+        });
+      }
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[0])
+          .then((_r1scouting) => setState(() {
+                r1scouting = _r1scouting;
+                r1Loading = false;
+              }));
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[1])
+          .then((_r2scouting) {
+        r2scouting = _r2scouting;
+        r2Loading = false;
+      });
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[2])
+          .then((_r3scouting) {
+        r3scouting = _r3scouting;
+        r3Loading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [Text('PitScouting')],
-      ),
-    );
+        child: isLoading
+            ? CircularProgressIndicator(color: Colors.blue)
+            : LayoutBuilder(
+                builder: (context, constraints) => Row(
+                  children: List.generate(3, (i) {
+                    List<MatchScouting2024> scouting = [];
+                    bool _isLoading = true;
+                    switch (i) {
+                      case 0:
+                        scouting = r1scouting;
+                        _isLoading = r1Loading;
+                        break;
+                      case 1:
+                        scouting = r2scouting;
+                        _isLoading = r2Loading;
+                        break;
+                      case 2:
+                        scouting = r3scouting;
+                        _isLoading = r3Loading;
+                        break;
+                    }
+                    int numColumns = isMobile() ? 1 : 2;
+                    int numRows = (scouting.length / numColumns).ceil();
+                    return ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxWidth: constraints.maxWidth / 3),
+                        child: Center(
+                            child: _isLoading
+                                ? CircularProgressIndicator(color: Colors.blue)
+                                : Column(children: [
+                                    Text(
+                                        'Team ${match!.match.alliances.red.team_keys[i].substring(3)}',
+                                        style: TextStyle(
+                                            fontSize: kToolbarHeight - 20,
+                                            color: Colors.red)),
+                                    if (scouting.length == 0)
+                                      Text(
+                                        'No data for this event',
+                                        style: TextStyle(fontSize: 30),
+                                      ),
+                                    Expanded(child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                      return SingleChildScrollView(
+                                          child: Column(children: [
+                                        Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: List.generate(numColumns,
+                                                (int colIndex) {
+                                              return ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          constraints.maxWidth /
+                                                              numColumns),
+                                                  child: Column(
+                                                    children:
+                                                        List.generate(numRows,
+                                                            (int rowIndex) {
+                                                      int index = rowIndex *
+                                                              numColumns +
+                                                          colIndex;
+                                                      if (index <
+                                                          scouting.length) {
+                                                        return AutoDisplay2024(
+                                                          scoutingData:
+                                                              scouting[index],
+                                                        );
+                                                      }
+                                                      return SizedBox.shrink();
+                                                    }),
+                                                  ));
+                                            }))
+                                      ]));
+                                    })),
+                                  ])));
+                  }),
+                ),
+              ));
   }
 }
 
@@ -198,12 +330,142 @@ class _BlueTab extends StatefulWidget {
 }
 
 class _BlueTabState extends State<_BlueTab> {
+  bool isLoading = true, b1Loading = true, b2Loading = true, b3Loading = true;
+  MatchDetails2024? match;
+  List<MatchScouting2024> b1scouting = [];
+  List<MatchScouting2024> b2scouting = [];
+  List<MatchScouting2024> b3scouting = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  fetchData() {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    apiService
+        .getMatchDetails(
+      int.parse(widget.widget.tournament.page.split('/')[3]),
+      widget.widget.tournament.page.split('/')[4],
+      widget.widget.match_key,
+    )
+        .then((_match) {
+      if (mounted) {
+        setState(() {
+          match = _match;
+          isLoading = false;
+        });
+      }
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[0])
+          .then((_r1scouting) => setState(() {
+                b1scouting = _r1scouting;
+                b1Loading = false;
+              }));
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[1])
+          .then((_r2scouting) {
+        b2scouting = _r2scouting;
+        b2Loading = false;
+      });
+      apiService
+          .fetchTeamMatchScouting(
+              int.parse(widget.widget.tournament.key.substring(0, 4)),
+              widget.widget.tournament.key.substring(4),
+              _match.match.alliances.red.team_keys[2])
+          .then((_r3scouting) {
+        b3scouting = _r3scouting;
+        b3Loading = false;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        children: [Text('PitScouting')],
-      ),
-    );
+        child: isLoading
+            ? CircularProgressIndicator(color: Colors.blue)
+            : LayoutBuilder(
+                builder: (context, constraints) => Row(
+                  children: List.generate(3, (i) {
+                    List<MatchScouting2024> scouting = [];
+                    bool _isLoading = true;
+                    switch (i) {
+                      case 0:
+                        scouting = b1scouting;
+                        _isLoading = b1Loading;
+                        break;
+                      case 1:
+                        scouting = b2scouting;
+                        _isLoading = b2Loading;
+                        break;
+                      case 2:
+                        scouting = b3scouting;
+                        _isLoading = b3Loading;
+                        break;
+                    }
+                    int numColumns = isMobile() ? 1 : 2;
+                    int numRows = (scouting.length / numColumns).ceil();
+                    return ConstrainedBox(
+                        constraints:
+                            BoxConstraints(maxWidth: constraints.maxWidth / 3),
+                        child: Center(
+                            child: _isLoading
+                                ? CircularProgressIndicator(color: Colors.blue)
+                                : Column(children: [
+                                    Text(
+                                        'Team ${match!.match.alliances.red.team_keys[i].substring(3)}',
+                                        style: TextStyle(
+                                            fontSize: kToolbarHeight - 20,
+                                            color: Colors.blue)),
+                                    if (scouting.length == 0)
+                                      Text(
+                                        'No data for this event',
+                                        style: TextStyle(fontSize: 30),
+                                      ),
+                                    Expanded(child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                      return SingleChildScrollView(
+                                          child: Column(children: [
+                                        Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: List.generate(numColumns,
+                                                (int colIndex) {
+                                              return ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                      maxWidth:
+                                                          constraints.maxWidth /
+                                                              numColumns),
+                                                  child: Column(
+                                                    children:
+                                                        List.generate(numRows,
+                                                            (int rowIndex) {
+                                                      int index = rowIndex *
+                                                              numColumns +
+                                                          colIndex;
+                                                      if (index <
+                                                          scouting.length) {
+                                                        return AutoDisplay2024(
+                                                          scoutingData:
+                                                              scouting[index],
+                                                        );
+                                                      }
+                                                      return SizedBox.shrink();
+                                                    }),
+                                                  ));
+                                            }))
+                                      ]));
+                                    })),
+                                  ])));
+                  }),
+                ),
+              ));
   }
 }
