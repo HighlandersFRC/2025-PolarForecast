@@ -5,10 +5,12 @@ import 'dart:math';
 import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/deaths_form.dart';
 import 'package:scouting_app/models/match_scouting_2024.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import '../Widgets/auto_display_2024.dart';
 import '../Widgets/match_link.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
@@ -668,28 +670,31 @@ class _ScheduleTabState extends State<_ScheduleTab> {
     bool isWide = MediaQuery.of(context).size.width >=
         dataColumns.length * columnMinWidth;
     return Center(
-        child: LayoutBuilder(
-            builder: (context, constraints) => Container(
-                alignment: Alignment.center,
-                height: constraints.maxHeight,
-                width: constraints.maxWidth,
-                child: InteractiveViewer(
-                  scaleEnabled: false,
-                  clipBehavior: Clip.hardEdge,
-                  child: SfDataGrid(
-                    columns: dataColumns,
-                    defaultColumnWidth: columnMinWidth,
-                    columnWidthMode:
-                        isWide ? ColumnWidthMode.fill : ColumnWidthMode.none,
-                    frozenColumnsCount: 1,
-                    source: _ScheduleStatusSource(
-                        context,
-                        dataRows,
-                        widget.widget.tournament,
-                        statuses,
-                        widget.widget.teamNumber),
-                  ),
-                ))));
+        child: isLoading
+            ? CircularProgressIndicator(color: Colors.blue)
+            : LayoutBuilder(
+                builder: (context, constraints) => Container(
+                    alignment: Alignment.center,
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: InteractiveViewer(
+                      scaleEnabled: false,
+                      clipBehavior: Clip.hardEdge,
+                      child: SfDataGrid(
+                        columns: dataColumns,
+                        defaultColumnWidth: columnMinWidth,
+                        columnWidthMode: isWide
+                            ? ColumnWidthMode.fill
+                            : ColumnWidthMode.none,
+                        frozenColumnsCount: 1,
+                        source: _ScheduleStatusSource(
+                            context,
+                            dataRows,
+                            widget.widget.tournament,
+                            statuses,
+                            widget.widget.teamNumber),
+                      ),
+                    ))));
   }
 }
 
@@ -1081,12 +1086,99 @@ class _AutosTab extends StatefulWidget {
 }
 
 class _AutosTabState extends State<_AutosTab> {
+  List<MatchScouting2024> scouting = [];
+  int AUTOS_PER_PAGE = 15;
+  int currentPage = 0;
+  bool isLoading = true;
+  @override
+  initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final fetchedStats = (await apiService.fetchTeamMatchScouting(
+      int.parse(widget.widget.tournament.page.split('/')[3]),
+      widget.widget.tournament.page.split('/')[4],
+      'frc${widget.widget.teamNumber}',
+    ));
+    if (mounted) {
+      setState(() {
+        scouting = [...fetchedStats];
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    int numPages = (scouting.length / AUTOS_PER_PAGE).ceil();
+    // make sure we don't map it to a non-existent page
+    if (currentPage >= numPages) {
+      setState(() => currentPage = numPages - 1);
+    }
+    if (currentPage < 0) {
+      currentPage = 0;
+    }
+    List<MatchScouting2024> pageData = scouting.sublist(
+      currentPage * AUTOS_PER_PAGE,
+      min(scouting.length, currentPage * AUTOS_PER_PAGE + AUTOS_PER_PAGE),
+    );
+    int numColumns = 3;
+    int numRows = (pageData.length / 3).ceil();
     return Center(
-      child: Column(
-        children: [Text('Autos')],
-      ),
+      child: isLoading
+          ? CircularProgressIndicator(color: Colors.blue)
+          : Column(
+              children: [
+                if (scouting.length == 0)
+                  Text(
+                    'No data for this event',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                Expanded(child: LayoutBuilder(builder: (context, constraints) {
+                  return SingleChildScrollView(
+                      child: Column(children: [
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(numColumns, (int colIndex) {
+                          return ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxWidth: constraints.maxWidth / numColumns),
+                              child: Column(
+                                children:
+                                    List.generate(numRows, (int rowIndex) {
+                                  int index = rowIndex * numColumns + colIndex;
+                                  if (index < pageData.length) {
+                                    return AutoDisplay2024(
+                                      scoutingData: pageData[index],
+                                    );
+                                  }
+                                  return SizedBox.shrink();
+                                }),
+                              ));
+                        }))
+                  ]));
+                })),
+                if (numPages > 1)
+                  NumberPaginator(
+                    initialPage: currentPage,
+                    numberPages: numPages,
+                    onPageChange: (page) {
+                      setState(() => currentPage = page);
+                    },
+                    config: NumberPaginatorUIConfig(
+                      buttonSelectedBackgroundColor: Colors.blue,
+                      buttonUnselectedForegroundColor: Colors.blue,
+                    ),
+                    prevButtonContent:
+                        Icon(Icons.chevron_left, color: Colors.blue),
+                    nextButtonContent:
+                        Icon(Icons.chevron_right, color: Colors.blue),
+                  ),
+              ],
+            ),
     );
   }
 }
