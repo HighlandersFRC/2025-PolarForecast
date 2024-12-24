@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scouting_app/Widgets/deaths_form.dart';
+import 'package:scouting_app/models/match_scouting_2024.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../Widgets/match_link.dart';
 import '../Widgets/polar_forecast_app_bar.dart';
@@ -803,40 +804,42 @@ class _MatchScoutingTab extends StatefulWidget {
 }
 
 class _MatchScoutingTabState extends State<_MatchScoutingTab> {
-  List<Map<String, dynamic>> scouting = [];
+  List<MatchScouting2024> scouting = [];
   List<DataGridRow> rows = [];
   List<GridColumn> columns = [];
   Map<String, dynamic> statDescription = {'scoutingData': {}};
+  late ScrollController scrollController;
 
   bool isLoading = true;
   @override
   void initState() {
     super.initState();
+    scrollController = ScrollController();
     fetchData().then((_) => updateGrid());
   }
 
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    try {
-      final fetchedStats = (await apiService.fetchTeamMatchScouting(
-        int.parse(widget.widget.tournament.page.split('/')[3]),
-        widget.widget.tournament.page.split('/')[4],
-        'frc${widget.widget.teamNumber}',
-      ));
-      final fetchedDescriptions = await apiService.fetchStatDescription(
-        int.parse(widget.widget.tournament.page.split('/')[3]),
-        widget.widget.tournament.page.split('/')[4],
-      );
-      if (mounted) {
-        setState(() {
-          statDescription = fetchedDescriptions;
-          scouting = [...fetchedStats];
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
+    // try {
+    final fetchedStats = (await apiService.fetchTeamMatchScouting(
+      int.parse(widget.widget.tournament.page.split('/')[3]),
+      widget.widget.tournament.page.split('/')[4],
+      'frc${widget.widget.teamNumber}',
+    ));
+    final fetchedDescriptions = await apiService.fetchStatDescription(
+      int.parse(widget.widget.tournament.page.split('/')[3]),
+      widget.widget.tournament.page.split('/')[4],
+    );
+    if (mounted) {
+      setState(() {
+        statDescription = fetchedDescriptions;
+        scouting = [...fetchedStats];
+        isLoading = false;
+      });
     }
+    // } catch (e) {
+    //   print('Error fetching data: $e');
+    // }
   }
 
   void updateGrid() {
@@ -852,13 +855,14 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
         columnName: 'active',
         label: Text('Active'),
       ));
+
       rows = [];
       for (var entry in scouting) {
-        var flattened = flatten(entry['data'], delimiter: '_');
+        var flattened = flatten(entry.data.toJson(), delimiter: '_');
         flattened = {
           ...flattened,
-          ...entry['data']['miscellaneous'],
-          'scout_name': entry['scout_info']['name'],
+          ...entry.data.miscellaneous.toJson(),
+          'scout_name': entry.scout_info.name,
         };
         rows.add(DataGridRow(cells: [
           ...statDescription['scoutingData'].map((stat) {
@@ -874,12 +878,13 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
             }
             return DataGridCell(
               columnName: stat['stat_key'],
-              value: flattened[stat['stat_key']] ?? entry[stat['stat_key']],
+              value: flattened[stat['stat_key']] ??
+                  entry.toJson()[stat['stat_key']],
             );
           }),
           DataGridCell(
             columnName: 'active',
-            value: entry['active'],
+            value: entry.toJson()['active'],
           ),
         ]));
       }
@@ -893,17 +898,18 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
             ? CircularProgressIndicator(color: Colors.blue)
             : LayoutBuilder(
                 builder: (context, constraints) => Container(
-                      height: constraints.maxHeight,
-                      width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: InteractiveViewer(
                       child: SfDataGrid(
                         allowFiltering: true,
                         allowSorting: true,
                         columns: columns,
-                        frozenColumnsCount: 1,
+                        frozenColumnsCount: 2,
                         columnWidthMode: ColumnWidthMode.auto,
                         source: _MatchScoutingSource(rows, scouting),
                       ),
-                    )));
+                    ))));
   }
 }
 
@@ -930,9 +936,9 @@ class _MatchScoutingSource extends DataGridSource {
 }
 
 class ActivateButton extends StatefulWidget {
-  final Map<String, dynamic> data;
+  MatchScouting2024 data;
 
-  const ActivateButton({Key? key, required this.data}) : super(key: key);
+  ActivateButton({Key? key, required this.data}) : super(key: key);
 
   @override
   _ActivateButtonState createState() => _ActivateButtonState();
@@ -946,7 +952,7 @@ class _ActivateButtonState extends State<ActivateButton> {
   @override
   void initState() {
     super.initState();
-    activated = widget.data['active'] ?? false;
+    activated = widget.data.active;
     text = activated ? 'Deactivate' : 'Activate';
   }
 
@@ -958,10 +964,10 @@ class _ActivateButtonState extends State<ActivateButton> {
 
     if (activated) {
       await apiService.deactivateMatchData(
-          widget.data, password, deactivateCallback);
+          widget.data.toJson(), password, deactivateCallback);
     } else {
       await apiService.activateMatchData(
-          widget.data, password, activateCallback);
+          widget.data.toJson(), password, activateCallback);
     }
   }
 
@@ -970,7 +976,7 @@ class _ActivateButtonState extends State<ActivateButton> {
       setState(() {
         text = 'Activate';
         activated = false;
-        widget.data['active'] = false;
+        widget.data = widget.data.copyWith(active: false);
       });
     } else {
       setState(() {
@@ -987,7 +993,7 @@ class _ActivateButtonState extends State<ActivateButton> {
       setState(() {
         text = 'Deactivate';
         activated = true;
-        widget.data['active'] = true;
+        widget.data = widget.data.copyWith(active: true);
       });
     } else {
       setState(() {

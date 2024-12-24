@@ -480,7 +480,7 @@ mixin _$MatchData2024 {
   AutoData2024 get auto => throw _privateConstructorUsedError;
   TeleopData2024 get teleop => throw _privateConstructorUsedError;
   MiscellaneousData2024 get miscellaneous => throw _privateConstructorUsedError;
-  List<String> get selectedPieces => throw _privateConstructorUsedError;
+  List<String>? get selectedPieces => throw _privateConstructorUsedError;
 
   /// Serializes this MatchData2024 to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -502,7 +502,7 @@ abstract class $MatchData2024CopyWith<$Res> {
       {AutoData2024 auto,
       TeleopData2024 teleop,
       MiscellaneousData2024 miscellaneous,
-      List<String> selectedPieces});
+      List<String>? selectedPieces});
 
   $AutoData2024CopyWith<$Res> get auto;
   $TeleopData2024CopyWith<$Res> get teleop;
@@ -527,7 +527,7 @@ class _$MatchData2024CopyWithImpl<$Res, $Val extends MatchData2024>
     Object? auto = null,
     Object? teleop = null,
     Object? miscellaneous = null,
-    Object? selectedPieces = null,
+    Object? selectedPieces = freezed,
   }) {
     return _then(_value.copyWith(
       auto: null == auto
@@ -542,10 +542,10 @@ class _$MatchData2024CopyWithImpl<$Res, $Val extends MatchData2024>
           ? _value.miscellaneous
           : miscellaneous // ignore: cast_nullable_to_non_nullable
               as MiscellaneousData2024,
-      selectedPieces: null == selectedPieces
+      selectedPieces: freezed == selectedPieces
           ? _value.selectedPieces
           : selectedPieces // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<String>?,
     ) as $Val);
   }
 
@@ -592,7 +592,7 @@ abstract class _$$MatchData2024ImplCopyWith<$Res>
       {AutoData2024 auto,
       TeleopData2024 teleop,
       MiscellaneousData2024 miscellaneous,
-      List<String> selectedPieces});
+      List<String>? selectedPieces});
 
   @override
   $AutoData2024CopyWith<$Res> get auto;
@@ -618,7 +618,7 @@ class __$$MatchData2024ImplCopyWithImpl<$Res>
     Object? auto = null,
     Object? teleop = null,
     Object? miscellaneous = null,
-    Object? selectedPieces = null,
+    Object? selectedPieces = freezed,
   }) {
     return _then(_$MatchData2024Impl(
       auto: null == auto
@@ -633,10 +633,10 @@ class __$$MatchData2024ImplCopyWithImpl<$Res>
           ? _value.miscellaneous
           : miscellaneous // ignore: cast_nullable_to_non_nullable
               as MiscellaneousData2024,
-      selectedPieces: null == selectedPieces
+      selectedPieces: freezed == selectedPieces
           ? _value._selectedPieces
           : selectedPieces // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<String>?,
     ));
   }
 }
@@ -648,7 +648,7 @@ class _$MatchData2024Impl implements _MatchData2024 {
       {required this.auto,
       required this.teleop,
       required this.miscellaneous,
-      required final List<String> selectedPieces})
+      final List<String>? selectedPieces})
       : _selectedPieces = selectedPieces;
 
   factory _$MatchData2024Impl.fromJson(Map<String, dynamic> json) =>
@@ -660,12 +660,14 @@ class _$MatchData2024Impl implements _MatchData2024 {
   final TeleopData2024 teleop;
   @override
   final MiscellaneousData2024 miscellaneous;
-  final List<String> _selectedPieces;
+  final List<String>? _selectedPieces;
   @override
-  List<String> get selectedPieces {
+  List<String>? get selectedPieces {
+    final value = _selectedPieces;
+    if (value == null) return null;
     if (_selectedPieces is EqualUnmodifiableListView) return _selectedPieces;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedPieces);
+    return EqualUnmodifiableListView(value);
   }
 
   @override
@@ -712,7 +714,7 @@ abstract class _MatchData2024 implements MatchData2024 {
       {required final AutoData2024 auto,
       required final TeleopData2024 teleop,
       required final MiscellaneousData2024 miscellaneous,
-      required final List<String> selectedPieces}) = _$MatchData2024Impl;
+      final List<String>? selectedPieces}) = _$MatchData2024Impl;
 
   factory _MatchData2024.fromJson(Map<String, dynamic> json) =
       _$MatchData2024Impl.fromJson;
@@ -724,7 +726,7 @@ abstract class _MatchData2024 implements MatchData2024 {
   @override
   MiscellaneousData2024 get miscellaneous;
   @override
-  List<String> get selectedPieces;
+  List<String>? get selectedPieces;
 
   /// Create a copy of MatchData2024
   /// with the given fields replaced by the non-null parameter values.

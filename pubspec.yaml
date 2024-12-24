@@ -31,6 +31,7 @@ dependencies:
   flutter_drawing_board: ^0.9.5
   scribble: ^0.10.0+1
   path_provider: ^2.1.5
+  number_paginator: ^0.4.1
 
 
 dev_dependencies:
@@ -45,3 +46,5 @@ flutter:
   assets:
     - assets/PolarBearHead.png
     - assets/2024GameField.png
+    - assets/2024BlankAutoField.png
+    - assets/Note.png

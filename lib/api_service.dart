@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:scouting_app/models/match_details_2024.dart';
+import 'package:scouting_app/models/match_scouting_2024.dart';
 
 import 'models/team_stats_2024.dart';
 import 'models/tournament.dart';
@@ -120,13 +121,23 @@ class ApiService {
     return data;
   }
 
-  Future<List<dynamic>> fetchTeamMatchScouting(
+  Future<List<MatchScouting2024>> fetchTeamMatchScouting(
       int year, String event, String team) async {
     final cacheKey = '${year}_${event}_${team}_match_scout_entries';
     final url = '${APIURL}/${year}/${event}/${team}/ScoutEntries';
     var data = (await _fetchFromAPI(url, cacheKey));
-    data = [...data];
-    return data;
+    var returnValue = <MatchScouting2024>[];
+    for (var matchData in data) {
+      dynamic died = matchData['data']['miscellaneous']['died'];
+      if (died == 1 || died == true) {
+        died = true;
+      } else {
+        died = false;
+      }
+      matchData['data']['miscellaneous']['died'] = died;
+      returnValue.add(MatchScouting2024.fromJson(matchData));
+    }
+    return returnValue;
   }
 
   Future<void> deactivateMatchData(Map<String, dynamic> data, String password,

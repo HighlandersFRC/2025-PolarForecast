@@ -47,8 +47,8 @@ _$MatchData2024Impl _$$MatchData2024ImplFromJson(Map<String, dynamic> json) =>
       teleop: TeleopData2024.fromJson(json['teleop'] as Map<String, dynamic>),
       miscellaneous: MiscellaneousData2024.fromJson(
           json['miscellaneous'] as Map<String, dynamic>),
-      selectedPieces: (json['selectedPieces'] as List<dynamic>)
-          .map((e) => e as String)
+      selectedPieces: (json['selectedPieces'] as List<dynamic>?)
+          ?.map((e) => e as String)
           .toList(),
     );
 

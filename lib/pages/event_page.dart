@@ -1,11 +1,14 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/models/match_scouting_2024.dart';
+import '../Widgets/auto_display_2024.dart';
 import '../Widgets/bar_chart_with_weights.dart';
+import '../Widgets/counter.dart';
 import '../Widgets/death_link.dart';
 import '../Widgets/match_link.dart';
 import '../Widgets/team_link.dart';
@@ -1461,24 +1464,209 @@ class _ElimsTabState extends State<_ElimsTab> {
   }
 }
 
-class _AutosTab extends StatelessWidget {
+class _AutosTab extends StatefulWidget {
   final EventPage widget;
   const _AutosTab(this.widget);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _AutosTabState();
+  }
+}
+
+class _AutosTabState extends State<_AutosTab> {
+  List<MatchScouting2024> scoutingData = [];
+  bool isLoading = true, farSide = false, closeSide = false;
+  int currentPage = 0, scores = 0, pickups = 0;
+  static const AUTOS_PER_PAGE = 15;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData().then((_) => setState(() => {}));
+  }
+
+  fetchData() async {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    try {
+      final fetchedData = await apiService.fetchEventScouting(
+        int.parse(widget.widget.tournament.page.split('/')[3]),
+        widget.widget.tournament.page.split('/')[4],
+      );
+      if (mounted) {
+        setState(() {
+          List<MatchScouting2024> newScoutingData = [];
+          for (var matchData in fetchedData) {
+            dynamic died = matchData['data']['miscellaneous']['died'];
+            if (died == 1 || died == true) {
+              died = true;
+            } else {
+              died = false;
+            }
+            matchData['data']['miscellaneous']['died'] = died;
+            newScoutingData.add(MatchScouting2024.fromJson(matchData));
+          }
+          scoutingData = newScoutingData;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      throw (e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Filter out all of the Data which doesn't follow the form's filters
+    List<MatchScouting2024> filteredData = scoutingData.where((entry) {
+      if ((entry.data.selectedPieces?.length ?? 0) == 0 &&
+          (farSide || closeSide || pickups > 0)) {
+        return false;
+      }
+      if (closeSide) {
+        const closeNotes = [
+          'spike_left',
+          'spike_middle',
+          'spike_right',
+          'halfway_far_left',
+          'halfway_middle_left',
+          'halfway_middle',
+        ];
+        if (!(entry.data.selectedPieces
+                ?.any((element) => closeNotes.any((note) => note == element)) ??
+            false)) return false;
+      }
+      if (farSide) {
+        const farNotes = [
+          'halfway_middle_right',
+          'halfway_far_right',
+        ];
+        if (!(entry.data.selectedPieces
+                ?.any((element) => farNotes.any((note) => note == element)) ??
+            false)) return false;
+      }
+      if (entry.data.selectedPieces!.length < pickups) {
+        return false;
+      }
+      int numScores = entry.data.auto.amp + entry.data.auto.speaker;
+      if (numScores < scores) {
+        return false;
+      }
+      return true;
+    }).toList();
+    int numPages = (filteredData.length / AUTOS_PER_PAGE).ceil();
+    // make sure we don't map it to a non-existent page
+    if (currentPage >= numPages) {
+      setState(() => currentPage = numPages - 1);
+    }
+    if (currentPage < 0) {
+      currentPage = 0;
+    }
+    List<MatchScouting2024> pageData = filteredData.sublist(
+      currentPage * AUTOS_PER_PAGE,
+      min(filteredData.length, currentPage * AUTOS_PER_PAGE + AUTOS_PER_PAGE),
+    );
+    int numColumns = 3;
+    int numRows = (pageData.length / 3).ceil();
     return Center(
-      child: Column(
-        children: [
-          Text(
-            widget.tournament.display,
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          ),
-          Text(
-            'Autonomous Go Here',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          )
-        ],
-      ),
+      child: isLoading
+          ? CircularProgressIndicator(color: Colors.blue)
+          : Column(
+              children: [
+                if (filteredData.length == 0 && scoutingData.length != 0)
+                  Text(
+                    'No data with selected filters',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                if (scoutingData.length == 0)
+                  Text(
+                    'No data for this event',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                Expanded(child: LayoutBuilder(builder: (context, constraints) {
+                  return SingleChildScrollView(
+                      child: Column(children: [
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Close Autos'),
+                            Checkbox(
+                              value: closeSide,
+                              onChanged: (value) =>
+                                  setState(() => closeSide = value ?? false),
+                            ),
+                            Text('Far Autos'),
+                            Checkbox(
+                              value: farSide,
+                              onChanged: (value) =>
+                                  setState(() => farSide = value ?? false),
+                            ),
+                            SizedBox(height: 16),
+                            Counter(
+                              label: 'Scores',
+                              value: scores,
+                              max: 9,
+                              onChanged: (value) =>
+                                  setState(() => scores = value),
+                            ),
+                            SizedBox(height: 16),
+                            Counter(
+                              label: 'Pickups',
+                              value: pickups,
+                              max: 8,
+                              onChanged: (value) =>
+                                  setState(() => pickups = value),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(numColumns, (int colIndex) {
+                          return ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  maxWidth: constraints.maxWidth / numColumns),
+                              child: Column(
+                                children:
+                                    List.generate(numRows, (int rowIndex) {
+                                  int index = rowIndex * numColumns + colIndex;
+                                  if (index < pageData.length) {
+                                    return AutoDisplay2024(
+                                      scoutingData: pageData[index],
+                                    );
+                                  }
+                                  return SizedBox.shrink();
+                                }),
+                              ));
+                        }))
+                  ]));
+                })),
+                if (numPages > 1)
+                  NumberPaginator(
+                    initialPage: currentPage,
+                    numberPages: numPages,
+                    onPageChange: (page) {
+                      setState(() => currentPage = page);
+                    },
+                    config: NumberPaginatorUIConfig(
+                      buttonSelectedBackgroundColor: Colors.blue,
+                      buttonUnselectedForegroundColor: Colors.blue,
+                    ),
+                    prevButtonContent:
+                        Icon(Icons.chevron_left, color: Colors.blue),
+                    nextButtonContent:
+                        Icon(Icons.chevron_right, color: Colors.blue),
+                  ),
+              ],
+            ),
     );
   }
 }

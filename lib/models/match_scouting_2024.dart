@@ -35,7 +35,7 @@ class MatchData2024 with _$MatchData2024 {
     required AutoData2024 auto,
     required TeleopData2024 teleop,
     required MiscellaneousData2024 miscellaneous,
-    required List<String> selectedPieces,
+    List<String>? selectedPieces,
   }) = _MatchData2024;
 
   factory MatchData2024.fromJson(Map<String, dynamic> json) =>
