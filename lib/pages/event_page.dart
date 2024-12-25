@@ -311,10 +311,12 @@ class _TeamDataSource extends DataGridSource {
     normalizedValue = normalizedValue.clamp(0.0, 1.0);
     if (flip) normalizedValue = 1 - normalizedValue;
     if (normalizedValue > 0.5) {
-      return Color.lerp(Colors.yellow, Colors.green, normalizedValue)!
+      return Color.lerp(const Color.fromARGB(255, 255, 255, 0), Colors.green,
+              normalizedValue)!
           .withAlpha(200);
     } else {
-      return Color.lerp(Colors.red, Colors.yellow, normalizedValue)!
+      return Color.lerp(
+              Colors.red, Color.fromARGB(255, 255, 255, 0), normalizedValue)!
           .withAlpha(200);
     }
   }
