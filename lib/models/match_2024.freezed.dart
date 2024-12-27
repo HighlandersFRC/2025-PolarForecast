@@ -27,12 +27,12 @@ mixin _$Match2024 {
   String get key => throw _privateConstructorUsedError;
   int get match_number => throw _privateConstructorUsedError;
   int? get post_result_time => throw _privateConstructorUsedError;
-  int get predicted_time => throw _privateConstructorUsedError;
+  int? get predicted_time => throw _privateConstructorUsedError;
   ScoreBreakdowns2024? get score_breakdown =>
       throw _privateConstructorUsedError;
   int get set_number => throw _privateConstructorUsedError;
   int get time => throw _privateConstructorUsedError;
-  List<String> get videos => throw _privateConstructorUsedError;
+  List<Map<String, dynamic>> get videos => throw _privateConstructorUsedError;
   String get winning_alliance => throw _privateConstructorUsedError;
 
   /// Serializes this Match2024 to a JSON map.
@@ -58,11 +58,11 @@ abstract class $Match2024CopyWith<$Res> {
       String key,
       int match_number,
       int? post_result_time,
-      int predicted_time,
+      int? predicted_time,
       ScoreBreakdowns2024? score_breakdown,
       int set_number,
       int time,
-      List<String> videos,
+      List<Map<String, dynamic>> videos,
       String winning_alliance});
 
   $AlliancesCopyWith<$Res> get alliances;
@@ -91,7 +91,7 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
     Object? key = null,
     Object? match_number = null,
     Object? post_result_time = freezed,
-    Object? predicted_time = null,
+    Object? predicted_time = freezed,
     Object? score_breakdown = freezed,
     Object? set_number = null,
     Object? time = null,
@@ -127,10 +127,10 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
           ? _value.post_result_time
           : post_result_time // ignore: cast_nullable_to_non_nullable
               as int?,
-      predicted_time: null == predicted_time
+      predicted_time: freezed == predicted_time
           ? _value.predicted_time
           : predicted_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       score_breakdown: freezed == score_breakdown
           ? _value.score_breakdown
           : score_breakdown // ignore: cast_nullable_to_non_nullable
@@ -146,7 +146,7 @@ class _$Match2024CopyWithImpl<$Res, $Val extends Match2024>
       videos: null == videos
           ? _value.videos
           : videos // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<Map<String, dynamic>>,
       winning_alliance: null == winning_alliance
           ? _value.winning_alliance
           : winning_alliance // ignore: cast_nullable_to_non_nullable
@@ -195,11 +195,11 @@ abstract class _$$Match2024ImplCopyWith<$Res>
       String key,
       int match_number,
       int? post_result_time,
-      int predicted_time,
+      int? predicted_time,
       ScoreBreakdowns2024? score_breakdown,
       int set_number,
       int time,
-      List<String> videos,
+      List<Map<String, dynamic>> videos,
       String winning_alliance});
 
   @override
@@ -228,7 +228,7 @@ class __$$Match2024ImplCopyWithImpl<$Res>
     Object? key = null,
     Object? match_number = null,
     Object? post_result_time = freezed,
-    Object? predicted_time = null,
+    Object? predicted_time = freezed,
     Object? score_breakdown = freezed,
     Object? set_number = null,
     Object? time = null,
@@ -264,10 +264,10 @@ class __$$Match2024ImplCopyWithImpl<$Res>
           ? _value.post_result_time
           : post_result_time // ignore: cast_nullable_to_non_nullable
               as int?,
-      predicted_time: null == predicted_time
+      predicted_time: freezed == predicted_time
           ? _value.predicted_time
           : predicted_time // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
       score_breakdown: freezed == score_breakdown
           ? _value.score_breakdown
           : score_breakdown // ignore: cast_nullable_to_non_nullable
@@ -283,7 +283,7 @@ class __$$Match2024ImplCopyWithImpl<$Res>
       videos: null == videos
           ? _value._videos
           : videos // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<Map<String, dynamic>>,
       winning_alliance: null == winning_alliance
           ? _value.winning_alliance
           : winning_alliance // ignore: cast_nullable_to_non_nullable
@@ -303,11 +303,11 @@ class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
       required this.key,
       required this.match_number,
       this.post_result_time,
-      required this.predicted_time,
+      this.predicted_time,
       this.score_breakdown,
       required this.set_number,
       required this.time,
-      required final List<String> videos,
+      required final List<Map<String, dynamic>> videos,
       required this.winning_alliance})
       : _videos = videos;
 
@@ -329,16 +329,16 @@ class _$Match2024Impl with DiagnosticableTreeMixin implements _Match2024 {
   @override
   final int? post_result_time;
   @override
-  final int predicted_time;
+  final int? predicted_time;
   @override
   final ScoreBreakdowns2024? score_breakdown;
   @override
   final int set_number;
   @override
   final int time;
-  final List<String> _videos;
+  final List<Map<String, dynamic>> _videos;
   @override
-  List<String> get videos {
+  List<Map<String, dynamic>> get videos {
     if (_videos is EqualUnmodifiableListView) return _videos;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_videos);
@@ -445,11 +445,11 @@ abstract class _Match2024 implements Match2024 {
       required final String key,
       required final int match_number,
       final int? post_result_time,
-      required final int predicted_time,
+      final int? predicted_time,
       final ScoreBreakdowns2024? score_breakdown,
       required final int set_number,
       required final int time,
-      required final List<String> videos,
+      required final List<Map<String, dynamic>> videos,
       required final String winning_alliance}) = _$Match2024Impl;
 
   factory _Match2024.fromJson(Map<String, dynamic> json) =
@@ -470,7 +470,7 @@ abstract class _Match2024 implements Match2024 {
   @override
   int? get post_result_time;
   @override
-  int get predicted_time;
+  int? get predicted_time;
   @override
   ScoreBreakdowns2024? get score_breakdown;
   @override
@@ -478,7 +478,7 @@ abstract class _Match2024 implements Match2024 {
   @override
   int get time;
   @override
-  List<String> get videos;
+  List<Map<String, dynamic>> get videos;
   @override
   String get winning_alliance;
 

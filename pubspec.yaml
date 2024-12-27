@@ -4,7 +4,7 @@ description: A Flutter app for scouting with a tab bar.
 version: 1.0.0
 
 environment:
-  sdk: ">=2.18.0 <3.0.0"
+  sdk: ">=3.0.0"
 
 dependencies:
   flutter:
@@ -48,3 +48,4 @@ flutter:
     - assets/2024GameField.png
     - assets/2024BlankAutoField.png
     - assets/Note.png
+    - assets/AutosGameField.png

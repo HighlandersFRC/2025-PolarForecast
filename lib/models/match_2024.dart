@@ -17,11 +17,11 @@ class Match2024 with _$Match2024 {
     required String key,
     required int match_number,
     int? post_result_time,
-    required int predicted_time,
+    int? predicted_time,
     ScoreBreakdowns2024? score_breakdown,
     required int set_number,
     required int time,
-    required List<String> videos,
+    required List<Map<String, dynamic>> videos,
     required String winning_alliance,
   }) = _Match2024;
 

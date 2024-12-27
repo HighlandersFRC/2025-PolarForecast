@@ -133,7 +133,7 @@ class _StatsTabState extends State<_StatsTab> {
   Future<void> fetchData() async {
     final apiService = Provider.of<ApiService>(context, listen: false);
     try {
-      final fetchedStats = (await apiService.getMatchDetails(
+      final fetchedStats = (await apiService.fetchMatchDetails(
         int.parse(widget.widget.tournament.page.split('/')[3]),
         widget.widget.tournament.page.split('/')[4],
         widget.widget.match_key,
@@ -194,7 +194,7 @@ class _RedTabState extends State<_RedTab> {
   fetchData() {
     final apiService = Provider.of<ApiService>(context, listen: false);
     apiService
-        .getMatchDetails(
+        .fetchMatchDetails(
       int.parse(widget.widget.tournament.page.split('/')[3]),
       widget.widget.tournament.page.split('/')[4],
       widget.widget.match_key,
@@ -344,7 +344,7 @@ class _BlueTabState extends State<_BlueTab> {
   fetchData() {
     final apiService = Provider.of<ApiService>(context, listen: false);
     apiService
-        .getMatchDetails(
+        .fetchMatchDetails(
       int.parse(widget.widget.tournament.page.split('/')[3]),
       widget.widget.tournament.page.split('/')[4],
       widget.widget.match_key,

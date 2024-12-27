@@ -15,15 +15,16 @@ _$Match2024Impl _$$Match2024ImplFromJson(Map<String, dynamic> json) =>
       key: json['key'] as String,
       match_number: (json['match_number'] as num).toInt(),
       post_result_time: (json['post_result_time'] as num?)?.toInt(),
-      predicted_time: (json['predicted_time'] as num).toInt(),
+      predicted_time: (json['predicted_time'] as num?)?.toInt(),
       score_breakdown: json['score_breakdown'] == null
           ? null
           : ScoreBreakdowns2024.fromJson(
               json['score_breakdown'] as Map<String, dynamic>),
       set_number: (json['set_number'] as num).toInt(),
       time: (json['time'] as num).toInt(),
-      videos:
-          (json['videos'] as List<dynamic>).map((e) => e as String).toList(),
+      videos: (json['videos'] as List<dynamic>)
+          .map((e) => e as Map<String, dynamic>)
+          .toList(),
       winning_alliance: json['winning_alliance'] as String,
     );
 

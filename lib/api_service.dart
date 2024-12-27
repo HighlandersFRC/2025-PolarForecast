@@ -206,7 +206,7 @@ class ApiService {
     }
   }
 
-  Future<MatchDetails2024> getMatchDetails(
+  Future<MatchDetails2024> fetchMatchDetails(
       int year, String event, String match_key) async {
     final cacheKey = '${year}_${event}_${match_key}_details';
     final url = '${APIURL}/${year}/${event}/${match_key}/match_details';

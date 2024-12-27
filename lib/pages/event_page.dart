@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:flat/flat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/Widgets/auto_pieces_2024.dart';
 import 'package:scouting_app/models/match_scouting_2024.dart';
 import '../Widgets/auto_display_2024.dart';
 import '../Widgets/bar_chart_with_weights.dart';
@@ -17,6 +19,7 @@ import '../Widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
+import '../models/match_details_2024.dart';
 import '../models/team_stats_2024.dart';
 import '../models/tournament.dart';
 
@@ -833,25 +836,176 @@ class _ChartsTabState extends State<_ChartsTab> {
   }
 }
 
-class _MatchScoutingTab extends StatelessWidget {
+class _MatchScoutingTab extends StatefulWidget {
   final EventPage widget;
   const _MatchScoutingTab(this.widget);
   @override
+  State<StatefulWidget> createState() {
+    return _MatchScoutingTabState();
+  }
+}
+
+class _MatchScoutingTabState extends State<_MatchScoutingTab> {
+  late final TextEditingController eventCodeController,
+      teamNumberController,
+      matchNumberController,
+      scoutNameController;
+  int driverStationIndex = -1;
+  List<String> selectedPieces = [];
+  MatchDetails2024? matchDetails = null;
+  @override
+  initState() {
+    super.initState();
+    eventCodeController =
+        TextEditingController(text: widget.widget.tournament.key);
+    teamNumberController = TextEditingController();
+    matchNumberController = TextEditingController();
+    scoutNameController = TextEditingController();
+  }
+
+  getNewMatchDetails(int matchNumber) {
+    if (matchNumber <= 0){
+      return;
+    }
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    apiService
+        .fetchMatchDetails(
+            int.parse(widget.widget.tournament.key.substring(0, 4)),
+            widget.widget.tournament.key.substring(4),
+            '${widget.widget.tournament.key}_qm$matchNumber')
+        .then((value) {
+      if (matchNumber == int.parse(matchNumberController.text)) {
+        setState(() {
+          matchDetails = value;
+        });
+        updateTeamNumber();
+      }
+    });
+  }
+
+  updateTeamNumber(){
+    if (matchDetails == null){
+      return;
+    }
+    List<String> teams = [
+      ...matchDetails!.match.alliances.red.team_keys,
+      ...matchDetails!.match.alliances.blue.team_keys,
+    ];
+    String team = '';
+    if (driverStationIndex != -1) {
+      team = teams[driverStationIndex];
+    } else {
+      int index = Random().nextInt(6);
+      team = teams[index];
+    }
+    teamNumberController.text = team.substring(3);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
+    const List<String> DRIVER_STATIONS = [
+      'Red 1',
+      'Red 2',
+      'Red 3',
+      'Blue 1',
+      'Blue 2',
+      'Blue 3'
+    ];
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
+        child: Card(
+            child: Padding(
+      padding: EdgeInsets.all(16),
       child: Column(
         children: [
           Text(
-            widget.tournament.display,
+            widget.widget.tournament.display,
             style: TextStyle(color: Colors.blue, fontSize: 24),
           ),
-          Text(
-            'Match Scouting Go Here',
-            style: TextStyle(color: Colors.blue, fontSize: 24),
-          )
+          Divider(),
+          SizedBox(height: 4),
+          TextField(
+            readOnly: true,
+            style: TextStyle(color: Colors.grey),
+            controller: eventCodeController,
+            decoration: InputDecoration(
+                label: Text(
+              'Event Code',
+            )).applyDefaults(theme.inputDecorationTheme),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: matchNumberController,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly, // Allows only digits
+            ],
+            maxLength: 3,
+            onChanged: (value) {
+              getNewMatchDetails(int.tryParse(value) ?? -1);
+            },
+            decoration: InputDecoration(
+              label: Text('Match Number'),
+              counterText: '',
+            ).applyDefaults(theme.inputDecorationTheme),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: scoutNameController,
+            decoration: InputDecoration(
+              label: Text('Scout Name'),
+            ).applyDefaults(theme.inputDecorationTheme),
+          ),
+          SizedBox(height: 8),
+          TextField(
+            controller: teamNumberController,
+            maxLength: 5,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly, // Allows only digits
+            ],
+            decoration: InputDecoration(
+              label: Text('Team Number'),
+              counterText: '',
+            ).applyDefaults(theme.inputDecorationTheme),
+          ),
+          SizedBox(height: 8),
+          DropdownButtonFormField<int>(
+            isExpanded: true,
+            value: driverStationIndex,
+            decoration: InputDecoration(
+              labelText: 'Driver Station',
+            ).applyDefaults(theme.inputDecorationTheme),
+            items: [
+              DropdownMenuItem<int>(
+                child:
+                    Text('None', style: TextStyle(fontStyle: FontStyle.italic)),
+                value: -1,
+              ),
+              ...DRIVER_STATIONS.indexed.map(
+                (value) => DropdownMenuItem<int>(
+                  child: Text(
+                    value.$2,
+                    style: TextStyle(
+                        color: value.$2.contains('Red')
+                            ? Colors.red
+                            : Colors.blue),
+                  ),
+                  value: value.$1,
+                ),
+              )
+            ],
+            onChanged: (int? value) {
+              setState(() => driverStationIndex = value ?? -1);
+              updateTeamNumber();
+            },
+          ),
+          SizedBox(height: 8),
+          AutoPieces2024(selectedPieces: selectedPieces, onChanged: (newPieces) {
+            setState(() => selectedPieces = newPieces);
+          })
+          
         ],
       ),
-    );
+    )));
   }
 }
 
@@ -1286,8 +1440,7 @@ class _QualsTabState extends State<_QualsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
+    // final theme = Theme.of(context);
     const columnMinWidth = 110.0;
     bool isWide = MediaQuery.of(context).size.width >=
         dataColumns.length * columnMinWidth;
@@ -1441,7 +1594,7 @@ class _ElimsTabState extends State<_ElimsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     const columnMinWidth = 110.0;
     bool isWide = MediaQuery.of(context).size.width >=
         dataColumns.length * columnMinWidth;
