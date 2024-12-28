@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
+import 'package:scouting_app/pages/not_found_page.dart';
 import '../widgets/auto_pieces_2024.dart';
 import '../models/match_scouting_2024.dart';
 import '../widgets/auto_display_2024.dart';
@@ -22,9 +23,36 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import '../models/match_details_2024.dart';
 import '../models/team_stats_2024.dart';
 import '../models/tournament.dart';
+import 'home_page.dart';
 
 class EventPage extends StatefulWidget {
   final Tournament tournament;
+  static Widget fromEventKey(BuildContext context, String eventKey) {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    final tournaments = apiService.fetchTournaments();
+    print(eventKey);
+    return FutureBuilder(
+        future: tournaments,
+        builder: (context, tournaments) {
+          Tournament? tournament = null;
+          try {
+            for (final _tournament in tournaments.requireData) {
+              if (_tournament.key == eventKey) {
+                tournament = _tournament;
+                break;
+              }
+            }
+            if (tournament == null) {
+              return NotFoundPage();
+            }
+            return EventPage(
+              tournament: tournament,
+            );
+          } catch (error) {
+            return HomePage();
+          }
+        });
+  }
 
   const EventPage({super.key, required this.tournament});
 

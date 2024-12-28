@@ -30,27 +30,6 @@ RUN mkdir /app/
 COPY . /app/
 WORKDIR /app/
 RUN flutter build web --release
-
-# Record the exposed port
-EXPOSE 9000
-
-# Stage 2: Serve the built app with NGINX
-FROM nginx:alpine
-
-# Set environment variables
-ENV PORT=8000
-
-# Copy the Flutter web build output from the previous stage
-COPY /build/web /usr/share/nginx/html
-
-# Remove the default NGINX configuration file
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Add a custom NGINX configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 9000
 EXPOSE 8000
 
-# Start NGINX
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["python3", "-m", "http.server", "8000", "--directory", "build/web"]
