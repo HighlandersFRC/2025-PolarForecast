@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/Widgets/field_whiteboard.dart';
+import '../widgets/field_whiteboard.dart';
 import 'package:scribble/scribble.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-import '../Widgets/auto_display_2024.dart';
-import '../Widgets/polar_forecast_app_bar.dart';
+import '../widgets/auto_display_2024.dart';
+import '../widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import '../models/match_details_2024.dart';
 import '../models/match_scouting_2024.dart';

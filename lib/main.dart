@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/Pages/home_page.dart';
+import '../pages/home_page.dart';
 import 'theme/theme_provider.dart';
 import 'api_service.dart'; // Make sure this file contains the ApiService class
 
@@ -15,7 +15,8 @@ class MyApp extends StatelessWidget {
       providers: [
         // Initialize ApiService with the base URL for API calls
         Provider<ApiService>(
-          create: (_) => ApiService('https://highlanderscouting.azurewebsites.net'),
+          create: (_) =>
+              ApiService('https://highlanderscouting.azurewebsites.net'),
         ),
         ChangeNotifierProvider(create: (_) => ThemeDataProvider()),
       ],
@@ -25,22 +26,20 @@ class MyApp extends StatelessWidget {
 }
 
 class MainApp extends StatelessWidget {
-   
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeDataProvider>(
-      builder: (context, themeNotifier, child) {
-        return MaterialApp(
-          home: Builder(
-            builder: (context) => HomePage(),
-          ),
-          theme: themeNotifier.themeData,
-          routes: {
-            '/home': (context) => HomePage(),
-            // '/autos': (context) => AutosPage([], ""),
-          },
-        );
-      }
-    );
+        builder: (context, themeNotifier, child) {
+      return MaterialApp(
+        home: Builder(
+          builder: (context) => HomePage(),
+        ),
+        theme: themeNotifier.themeData,
+        routes: {
+          '/home': (context) => HomePage(),
+          // '/autos': (context) => AutosPage([], ""),
+        },
+      );
+    });
   }
 }

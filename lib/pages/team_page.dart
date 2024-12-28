@@ -7,12 +7,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/Widgets/deaths_form.dart';
-import 'package:scouting_app/models/match_scouting_2024.dart';
+import '../widgets/deaths_form.dart';
+import '../models/match_scouting_2024.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import '../Widgets/auto_display_2024.dart';
-import '../Widgets/match_link.dart';
-import '../Widgets/polar_forecast_app_bar.dart';
+import '../widgets/auto_display_2024.dart';
+import '../widgets/match_link.dart';
+import '../widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import '../models/tournament.dart';
 

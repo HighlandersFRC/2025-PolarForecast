@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:scouting_app/models/match_scouting_2024.dart';
+import '../models/match_scouting_2024.dart';
 
 import 'polar_forecast_app_bar.dart';
 

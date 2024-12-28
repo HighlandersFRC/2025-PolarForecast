@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:number_paginator/number_paginator.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/Widgets/auto_pieces_2024.dart';
-import 'package:scouting_app/models/match_scouting_2024.dart';
-import '../Widgets/auto_display_2024.dart';
-import '../Widgets/bar_chart_with_weights.dart';
-import '../Widgets/counter.dart';
-import '../Widgets/death_link.dart';
-import '../Widgets/match_link.dart';
-import '../Widgets/team_link.dart';
+import '../widgets/auto_pieces_2024.dart';
+import '../models/match_scouting_2024.dart';
+import '../widgets/auto_display_2024.dart';
+import '../widgets/bar_chart_with_weights.dart';
+import '../widgets/counter.dart';
+import '../widgets/death_link.dart';
+import '../widgets/match_link.dart';
+import '../widgets/team_link.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import '../Widgets/polar_forecast_app_bar.dart';
+import '../widgets/polar_forecast_app_bar.dart';
 import '../api_service.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -864,7 +864,7 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
   }
 
   getNewMatchDetails(int matchNumber) {
-    if (matchNumber <= 0){
+    if (matchNumber <= 0) {
       return;
     }
     final apiService = Provider.of<ApiService>(context, listen: false);
@@ -883,8 +883,8 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
     });
   }
 
-  updateTeamNumber(){
-    if (matchDetails == null){
+  updateTeamNumber() {
+    if (matchDetails == null) {
       return;
     }
     List<String> teams = [
@@ -999,10 +999,11 @@ class _MatchScoutingTabState extends State<_MatchScoutingTab> {
             },
           ),
           SizedBox(height: 8),
-          AutoPieces2024(selectedPieces: selectedPieces, onChanged: (newPieces) {
-            setState(() => selectedPieces = newPieces);
-          })
-          
+          AutoPieces2024(
+              selectedPieces: selectedPieces,
+              onChanged: (newPieces) {
+                setState(() => selectedPieces = newPieces);
+              })
         ],
       ),
     )));
