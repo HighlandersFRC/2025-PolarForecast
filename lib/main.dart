@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import '../pages/home_page.dart';
 import 'theme/theme_provider.dart';
 import 'api_service.dart'; // Make sure this file contains the ApiService class
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  await dotenv.load(fileName: '.env');
   runApp(MyApp());
 }
 
@@ -15,8 +17,7 @@ class MyApp extends StatelessWidget {
       providers: [
         // Initialize ApiService with the base URL for API calls
         Provider<ApiService>(
-          create: (_) =>
-              ApiService('https://highlanderscouting.azurewebsites.net'),
+          create: (_) => ApiService(dotenv.env['API_URL'].toString()),
         ),
         ChangeNotifierProvider(create: (_) => ThemeDataProvider()),
       ],
