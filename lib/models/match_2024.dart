@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
-import 'package:scouting_app/models/alliances.dart';
+import '../models/alliances.dart';
 
 import 'score_breakdowns_2024.dart';
 

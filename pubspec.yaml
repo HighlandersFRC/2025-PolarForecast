@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  flutter_web_plugins:
+    sdk: flutter
   flutter_inappwebview: ^5.3.2
   provider: ^6.1.2
   qr_flutter: ^4.1.0
@@ -32,6 +33,7 @@ dependencies:
   scribble: ^0.10.0+1
   path_provider: ^2.1.5
   number_paginator: ^0.4.1
+  flutter_dotenv: ^5.2.1
 
 
 dev_dependencies:
@@ -44,6 +46,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/PolarBearHead.png
     - assets/2024GameField.png
     - assets/2024BlankAutoField.png

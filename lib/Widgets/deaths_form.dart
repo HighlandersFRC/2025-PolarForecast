@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scouting_app/api_service.dart';
+import '../api_service.dart';
 
 import '../models/tournament.dart';
 

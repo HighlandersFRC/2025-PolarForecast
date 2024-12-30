@@ -87,13 +87,7 @@ Future<List<Widget>> _getSuggestions(
         title: Text(tournament.display),
         onTap: () {
           Navigator.pop(context);
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => EventPage(
-                  tournament: tournament,
-                ),
-              ));
+          Navigator.pushNamed(context, '/event/${tournament.key}');
         },
       );
     })
@@ -207,14 +201,7 @@ class _PolarForecastAppBarState extends State<PolarForecastAppBar> {
           title: Text(tournament.display),
           onTap: () {
             Navigator.pop(context);
-
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventPage(
-                    tournament: tournament,
-                  ),
-                ));
+            Navigator.pushNamed(context, '/event/${tournament.key}');
           },
         );
       })

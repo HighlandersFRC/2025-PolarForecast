@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
-import 'package:scouting_app/models/alliance.dart';
+import '../models/alliance.dart';
 
 part 'alliances.freezed.dart';
 part 'alliances.g.dart';

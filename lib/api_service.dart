@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:scouting_app/models/match_details_2024.dart';
-import 'package:scouting_app/models/match_scouting_2024.dart';
+import '../models/match_details_2024.dart';
+import '../models/match_scouting_2024.dart';
 
 import 'models/team_stats_2024.dart';
 import 'models/tournament.dart';
