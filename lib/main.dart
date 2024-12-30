@@ -1,5 +1,3 @@
-import 'dart:ui_web';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
@@ -44,8 +42,6 @@ class MainApp extends StatelessWidget {
           // initialRoute: '/home',
           onGenerateRoute: (RouteSettings settings) {
             final pathSegments = settings.name!.split('/');
-            print('Navigated to: ${settings.name}');
-            print(pathSegments);
             if (pathSegments.isNotEmpty) {
               if (pathSegments[1] == 'event') {
                 if (pathSegments.length > 2) {
